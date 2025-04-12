@@ -145,14 +145,17 @@
       @media screen and (max-width: 768px) {
         .sidebar {
           width: 100%;
-          height: auto;
-          position: relative;
+          max-height: 200px;
+          overflow-y: scroll;
+          position: absolute;
+          z-index: 1200;
         }
 
         .map-controls {
           top: auto;
-          bottom: 80px;
-          right: 10px;
+          bottom: 10px;
+          right: 50%;
+          transform: translateX(50%);
         }
 
         .map-thumbnail {
@@ -178,6 +181,7 @@
   </head>
   
   <body>
+    <button id="toggle-sidebar" style="position:fixed;top:10px;left:10px;z-index:1300;">Bản đồ</button>
     <!-- Sidebar (Map List) -->
     <div class="sidebar">
       <div class="sidebar-header">
@@ -495,6 +499,16 @@
       
       // Initialize with the first map
       activateLayer(historicalMaps[0].id);
+
+      document.getElementById('toggle-sidebar').addEventListener('click', function () {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.style.display = sidebar.style.display === 'none' ? 'block' : 'none';
+      });
+
+      // Hide sidebar by default on mobile
+      if (window.innerWidth <= 768) {
+        document.querySelector('.sidebar').style.display = 'none';
+      }
     </script>
   </body>
 </html>
