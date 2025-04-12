@@ -141,6 +141,38 @@
         cursor: pointer;
         font-size: 16px;
       }
+
+      @media screen and (max-width: 768px) {
+        .sidebar {
+          width: 100%;
+          height: auto;
+          position: relative;
+        }
+
+        .map-controls {
+          top: auto;
+          bottom: 80px;
+          right: 10px;
+        }
+
+        .map-thumbnail {
+          width: 50px;
+          height: 50px;
+        }
+
+        #map {
+          top: auto;
+          height: calc(100% - 300px);
+          margin-top: 0;
+        }
+
+        #info-box {
+          width: calc(100% - 20px);
+          right: 10px;
+          bottom: 10px;
+          max-height: 60vh;
+        }
+      }
     </style>
     <title>Historical Maps of Saigon/Ho Chi Minh City</title>
   </head>
