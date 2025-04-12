@@ -145,8 +145,8 @@
       @media screen and (max-width: 768px) {
         .sidebar {
           width: 100%;
-          max-height: 200px;
-          overflow-y: scroll;
+          max-height: 140px;
+          overflow-y: auto;
           position: absolute;
           z-index: 1200;
         }
@@ -165,7 +165,7 @@
 
         #map {
           top: auto;
-          height: calc(100% - 300px);
+          height: 100%;
           margin-top: 0;
         }
 
@@ -173,7 +173,8 @@
           width: calc(100% - 20px);
           right: 10px;
           bottom: 10px;
-          max-height: 60vh;
+          max-height: 40vh;
+          font-size: 13px;
         }
       }
     </style>
@@ -181,7 +182,6 @@
   </head>
   
   <body>
-    <button id="toggle-sidebar" style="position:fixed;top:10px;left:10px;z-index:1300;">Bản đồ</button>
     <!-- Sidebar (Map List) -->
     <div class="sidebar">
       <div class="sidebar-header">
@@ -499,16 +499,6 @@
       
       // Initialize with the first map
       activateLayer(historicalMaps[0].id);
-
-      document.getElementById('toggle-sidebar').addEventListener('click', function () {
-        const sidebar = document.querySelector('.sidebar');
-        sidebar.style.display = sidebar.style.display === 'none' ? 'block' : 'none';
-      });
-
-      // Hide sidebar by default on mobile
-      if (window.innerWidth <= 768) {
-        document.querySelector('.sidebar').style.display = 'none';
-      }
     </script>
   </body>
 </html>
