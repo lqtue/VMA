@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="stylesheet" href="css/leaflet.css">
+    <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+    <link rel="stylesheet" href="css/qgis2web.css">
+    <link rel="stylesheet" href="css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+      /* Full background map and floating UI elements */
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: Arial, sans-serif;
+      }
+      /* Map fills the entire viewport */
+      #map {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+      /* Sidebar (Map List) – scrollable */
+      .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 300px;
+        background-color: #5A4A39;
+        color: #E9E1D4;
+        overflow-y: auto;
+        z-index: 1100;
+      }
+      .sidebar-header {
+        padding: 15px;
+        background-color: #4A3A29;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .sidebar-title {
+        font-size: 16px;
+        font-weight: bold;
+      }
+      .map-list {
+        padding: 0;
+      }
+      .map-item {
+        padding: 15px;
+        border-bottom: 1px solid #4A3A29;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+      }
+      .map-item:hover {
+        background-color: #4A3A29;
+      }
+      .map-item-info {
+        flex: 1;
+      }
+      .map-title {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      .map-details {
+        font-size: 12px;
+        color: #BFB5A6;
+      }
+      .map-thumbnail {
+        width: 60px;
+        height: 60px;
+        margin-left: 10px;
+        border: 1px solid #BFB5A6;
+      }
+      .info-icon:hover {
+        background-color: #ffffff;
+        color: #4A3A29;
+      }
+
+      /* Map controls (Opacity) at top-right */
+      .map-controls {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: rgba(255,255,255,0.8);
+        padding: 10px;
+        z-index: 1100;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      }
+      .map-controls label {
+        font-weight: bold;
+        margin-right: 5px;
+      }
+      .map-controls input[type="range"] {
+        vertical-align: middle;
+      }
+
+      /* Attribution in bottom-right corner */
+      .attribution {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(255,255,255,0.7);
+        padding: 3px 5px;
+        font-size: 10px;
+        z-index: 1100;
+      }
+      
+      /* Info box */
+      #info-box {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 300px;
+        background: #fff;
+        border: 1px solid #ccc;
+        padding: 15px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        z-index: 1200;
+        border-radius: 8px;
+        display: none;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      #info-box h3 {
+        margin-top: 0;
+      }
+      #info-box .close-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+    </style>
+    <title>Historical Maps of Saigon/Ho Chi Minh City</title>
+  </head>
+  
+  <body>
+    <!-- Sidebar (Map List) -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">Bản đồ Sài Gòn - TP Hồ Chí Minh</div>
+      </div>
+      <div class="map-list" id="map-list">
+        <!-- Map items generated dynamically -->
+      </div>
+    </div>
+    
+    <!-- Fullscreen Map -->
+    <div id="map"></div>
+    
+    <!-- Info Box -->
+    <div id="info-box">
+      <span class="close-btn" onclick="document.getElementById('info-box').style.display='none'">&times;</span>
+      <div id="info-content"></div>
+    </div>
+    
+    <!-- Single Map Control for Opacity -->
+    <div class="map-controls">
+      <label for="opacity-slider">Độ trong suốt:</label>
+      <input type="range" id="opacity-slider" min="0" max="100" value="100">
+    </div>
+
+    <!-- Attribution -->
+    <div class="attribution">© MapTiler © OpenStreetMap</div>
+    
+    <script src="js/qgis2web_expressions.js"></script>
+    <script src="js/leaflet.js"></script>
+    <script src="js/L.Control.Layers.Tree.min.js"></script>
+    <script src="js/leaflet.rotatedMarker.js"></script>
+    <script src="js/leaflet.pattern.js"></script>
+    <script src="js/leaflet-hash.js"></script>
+    <script src="js/Autolinker.min.js"></script>
+    <script src="js/rbush.min.js"></script>
+    <script src="js/labelgun.min.js"></script>
+    <script src="js/labels.js"></script>
+    <script>
+      // Initialize Map
+      var map = L.map('map', {
+        zoomControl: true,
+        maxZoom: 28,
+        minZoom: 1
+      }).fitBounds([[10.654218708492945,106.47598901155732],[10.849791801055698,106.88822914237525]]);
+      
+      var hash = new L.Hash(map);
+      map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> · <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> · <a href="https://qgis.org">QGIS</a>');
+      var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+
+      // Base Layer (Google Maps)
+      map.createPane('pane_GoogleMaps_0');
+      map.getPane('pane_GoogleMaps_0').style.zIndex = 400;
+      var layer_GoogleMaps = L.tileLayer('https://mt.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+        pane: 'pane_GoogleMaps_0',
+        opacity: 1.0,
+        attribution: 'Map data © Google',
+        minZoom: 1,
+        maxZoom: 28,
+        minNativeZoom: 0,
+        maxNativeZoom: 22
+      });
+      map.addLayer(layer_GoogleMaps);
+      
+      var bounds_group = new L.featureGroup([]);
+      
+      // Historical Map Layers Definition
+      var historicalMaps = [
+        {
+          id: 'layer_011799_modified_1',
+          year: 1799,
+          name: "Bản đồ quy hoạch thành Gia Định",
+          author: "Đại tá Victor Olivier & kỹ sư Brun, dưới chỉ đạo của chúa Nguyễn Ánh",
+          detail: "Năm 1789, chúa Nguyễn Ánh chiếm lại Sài Gòn và cho xây thành Gia Định theo kiểu Vauban. Đại tá Olivier thiết kế bản đồ, kỹ sư Brun dựng năm 1795. \n\n Thành có pháo đài vuông, kênh rạch thoát nước, 40+ đường phố thẳng. Trung tâm là hoàng cung, kỳ đài, xưởng đúc, bệnh viện, kho quân dụng... Tổng diện tích khoảng 65 ha – là nền móng quy hoạch đô thị châu Âu đầu tiên tại Việt Nam.",
+          url: 'data/webp/011799_modified_1.webp',
+          bounds: [[10.728408907889172,106.66310974197486],[10.819074776181584,106.73408348814189]]
+        },
+        {
+          id: 'layer_021815_modified_2',
+          year: 1815,
+          name: "Bản đồ Gia Định",
+          author: "Trần Văn Học, quan võ triều Nguyễn",
+          detail: "Bản đồ vẽ lại thành Gia Định và khu vực xung quanh năm 1815, sau thời kỳ Tây Sơn. Đây là một trong những bản đồ địa phương đầu tiên được người Việt thể hiện bằng kỹ thuật phương Tây. Bản đồ thể hiện tường thành, sông ngòi và cấu trúc đô thị thời Nguyễn.",
+          url: 'data/webp/021815_modified_2.webp',
+          bounds: [[10.674825002752256,106.59253020971416],[10.85874723887188,106.77323334240792]]
+        },
+        {
+          id: 'layer_031862_modified_3',
+          year: 1862,
+          name: "Dự án đô thị 500.000 dân ở Sài Gòn",
+          author: "Đại tá công binh Coffyn, theo lệnh Đô đốc Bonnard",
+          detail: "Bản đồ thể hiện dự án quy hoạch một thành phố 500.000 dân, được Coffyn trình ngày 30/4/1862 và duyệt ngày 10/5. Dù không khả thi lúc bấy giờ, bản quy hoạch này là nền tảng đầu tiên cho phát triển đô thị Sài Gòn thời Pháp thuộc. \n\nVề sau, mạng lưới đường phố trong bản đồ 1882 bám rất sát với đề xuất của Coffyn, cho thấy ảnh hưởng lâu dài của đồ án này đối với cấu trúc đô thị Sài Gòn.",
+          url: 'data/webp/031862_modified_3.webp',
+          bounds: [[10.735451895193123,106.64132477338971],[10.806103680519682,106.72678175739581]]
+        },
+        {
+          id: 'layer_1882sg_modified_4',
+          year: 1882,
+          name: "Bản đồ chi tiết TP Sài Gòn",
+          author: "Boilloux, dưới quyền Thống đốc Le Myre de Vilers",
+          detail: "Bản đồ chi tiết trung tâm Sài Gòn năm 1882, cho thấy quy hoạch đô thị chi tiết theo kiểu Pháp với mạng lưới đường phố vuông góc.",
+          url: 'data/webp/1882sg_modified_4.webp',
+          bounds: [[10.759924518019671,106.68790889761985],[10.796613454125245,106.71547261893554]]
+        },
+        {
+          id: 'layer_1882_modified_5',
+          year: 1882,
+          name: "Bản đồ quận 20 và vùng phụ cận",
+          author: "Boilloux, dưới quyền Thống đốc Le Myre de Vilers",
+          detail: "Bản đồ đo đạc địa hình quận 20 và các vùng lân cận ở Sài Gòn, lập năm 1882 dưới thời Thống đốc Le Myre de Vilers. \n\nĐược xuất bản bởi Sở Địa chính Nam Kỳ, dưới sự chỉ đạo của thanh tra Boilloux, tỉ lệ 1:20.000, phản ánh chi tiết khu vực đô thị hóa mở rộng thời kỳ đầu thuộc địa.",
+          url: 'data/webp/1882_modified_5.webp',
+          bounds: [[10.724151801019115,106.59928568481523],[10.858834953043116,106.81507032892405]]
+        },
+        {
+          id: 'layer_1895_modified_13',
+          year: 1895,
+          name: "Bản đồ vùng ven Sài Gòn",
+          author: "Trung úy Joly, Bộ binh Thuộc địa",
+          detail: "Bản đồ lập bởi Sở Địa chính Nam Kỳ và được cập nhật bởi Trung úy Joly (Lục quân thuộc địa Pháp) vào tháng 8 năm 1895. \n\nTỷ lệ 1:20.000, thể hiện khu vực ngoại vi Sài Gòn với địa hình, sông ngòi, tuyến giao thông – phản ánh quá trình mở rộng hành chính và quy hoạch thời Pháp thuộc.",
+          url: 'data/webp/1895_modified_13.webp',
+          bounds: [[10.721535684312027,106.5996526765845],[10.86402479082869,106.81371849680512]]
+        },
+        {
+          id: 'layer_1898_modified_6',
+          year: 1898,
+          name: "Bản đồ địa chính TP Sài Gòn",
+          author: "Ông Bertaux, Giám đốc Địa chính và Đo đạc",
+          detail: "Bản đồ địa chính Sài Gòn xuất bản năm 1898 dưới sự chỉ đạo của ông Bertaux – Giám đốc Sở Địa chính kiêm trưởng bộ phận Đo đạc. \n\nTỷ lệ 1:4.000, thể hiện chi tiết khu trung tâm thành phố thời kỳ Pháp thuộc. Bản đồ được vẽ lại và chỉnh lý bởi họa viên A. Chauvet.",
+          url: 'data/webp/1898_modified_6.webp',
+          bounds: [[10.754960505717198,106.6759312665849],[10.799322932902191,106.72427720100319]]
+        },
+        {
+          id: 'layer_1900_modified_7',
+          year: 1900,
+          name: "Bản đồ tổng thể Sài Gòn",
+          author: "Sở Địa chính và Đo đạc Nam Kỳ",
+          detail: "Bản đồ tổng thể khu vực Sài Gòn mở rộng đầu thế kỷ 20, thể hiện sự phát triển đô thị và kết nối giữa Sài Gòn với các vùng xung quanh.",
+          url: 'data/webp/1900_modified_7.webp',
+          bounds: [[10.605959028926211,106.573272499584],[10.910665873456347,106.8200679018665]]
+        },
+        {
+          id: 'layer_1923_modified_8',
+          year: 1923,
+          name: "Bản đồ Sài Gòn - Chợ Lớn",
+          author: "Nguồn: BNF & Cité de l'architecture (quỹ Pineau)",
+          detail: "Bản đồ Sài Gòn - Chợ Lớn năm 1923, tỷ lệ 1:10.000, kích thước 136 x 118 cm, bản in héliographique và có bản tô màu gouache trong bộ sưu tập Cité de l'architecture.\n\nTư liệu này hiện được lưu trữ tại Thư viện Quốc gia Pháp (BNF), Trung tâm Kiến trúc & Di sản Pháp (có bản chú thích của kiến trúc sư Louis-Georges Pineau), và bộ sưu tập bản đồ CEFURDS.",
+          url: 'data/webp/1923_modified_8.webp',
+          bounds: [[10.698390187631299,106.6093296630134],[10.80780587479193,106.73449117638633]]
+        },
+        {
+          id: 'layer_1930_modified_9',
+          year: 1930,
+          name: "Bản đồ địa hình tỉnh Gia Định",
+          author: "Sở Địa chính và Đo đạc Nam Kỳ, dưới chính quyền Pháp",
+          detail: "Bản đồ địa hình tỉnh Gia Định, xuất bản năm 1930 bởi Sở Địa chính Nam Kỳ (Service du cadastre et de la topographie), trực thuộc chính quyền thuộc địa Pháp.\n\nTỷ lệ 1:100.000, khổ 75 x 110 cm, in tại Imprimerie d'Extrême-Orient (Hà Nội). Ghi chú bằng tiếng Pháp, thể hiện địa hình và ranh giới hành chính khu vực Gia Định.\n\nNguồn: Bibliothèque nationale de France – http://catalogue.bnf.fr/ark:/12148/cb40742501q",
+          url: 'data/webp/1930_modified_9.webp',
+          bounds: [[10.263607634593779,106.32256496165391],[11.220418072492633,107.0218448887627]]
+        },
+        {
+          id: 'layer_1942_modified_10',
+          year: 1942,
+          name: "Bản đồ Sài Gòn – Chợ Lớn (1942)",
+          author: "Sở Địa lý Đông Dương (Hà Nội)",
+          detail: "Hai bản đồ 'Plan de Saïgon' và 'Plan de Cholon' năm 1942 do Sở Địa lý Đông Dương xuất bản tại Hà Nội. \n\nCả hai đều có tỷ lệ 1:10.000, thể hiện chi tiết đô thị trung tâm Sài Gòn và khu vực Chợ Lớn – hai đô thị lớn nhất Nam Kỳ thời bấy giờ.\n\nBản đồ Chợ Lớn (83 x 62 cm) – http://catalogue.bnf.fr/ark:/12148/cb406823772\nBản đồ Sài Gòn (62 x 86 cm) – http://catalogue.bnf.fr/ark:/12148/cb407175030",
+          url: 'data/webp/1942_modified_10.webp',
+          bounds: [[10.7075855603191,106.61551471377386],[10.798740442069482,106.72882033386672]]
+        },
+        {
+          id: 'layer_1959_modified_11',
+          year: 1959,
+          name: "Đô-thành Sài Gòn",
+          author: "Nha Địa-Dư Quốc-Gia",
+          detail: "Bản đồ Đô-thành Sài Gòn tái bản lần 2 năm 1959, khổ 105 x 73 cm, tỷ lệ 1:10.000. \n\nXuất bản bởi Nha Địa-Dư Quốc-Gia, dựa trên bản đồ gốc của Viện Địa-Dư Pháp chụp ảnh năm 1953, điều chỉnh bằng phi ảnh năm 1956 và bổ sung năm 1957. \n\nThể hiện chi tiết đường sá, nhà cửa, công trình công cộng, tôn giáo, nghĩa trang, đồn điền, công viên, rừng, lau sậy… Có phụ bản và bảng chú giải các tuyến đường và công trình. \n\nNguồn: Bộ sưu tập bản đồ IAO.",
+          url: 'data/webp/1959_modified_11.webp',
+          bounds: [[10.711599668059556,106.60737572815358],[10.806356645537857,106.7321502824217]]
+        },
+        {
+          id: 'layer_1968_modified_12',
+          year: 1968,
+          name: "Bản đồ Sài Gòn – Tân Sơn Nhất",
+          author: "Tiểu đoàn công binh 29, trực thuộc CINCUSARPAC (Mỹ)",
+          detail: "Bản đồ được biên soạn năm 1968 bởi Tiểu đoàn Công binh số 29 (Base Topo), theo chỉ đạo của CINCUSARPAC (Bộ Tư lệnh Tác chiến Thái Bình Dương Hoa Kỳ). \n\nNguồn gốc từ bộ bản đồ tỷ lệ 1:10.000 của National Geographic Service of Vietnam, xuất bản năm 1966, bao gồm 6 tờ (Sheets 1–6). \n\nBản đồ được giảm quang học và chỉnh lý từ ảnh chụp trên không năm 1968.",
+          url: 'data/webp/1968_modified_12.webp',
+          bounds: [[10.695499836211551,106.61114334383667],[10.847971861052345,106.73618406861462]]
+        },
+        {
+          id: 'layer_1984_modified_14',
+          year: 1984,
+          name: "Bản đồ địa hình TP Hồ Chí Minh",
+          author: "U.S. Army Map Service (Series L7014)",
+          detail: "Bản đồ địa hình tỉ lệ 1:50.000 thuộc loạt L7014 do Cơ quan Bản đồ Quân đội Hoa Kỳ (U.S. Army Map Service) biên soạn. \n\nTư liệu phản ánh địa hình vùng đô thị TP Hồ Chí Minh thời kỳ sau chiến tranh, thường được sử dụng cho mục đích quân sự, nghiên cứu và quy hoạch. \n\nNguồn: Vietnam Topographic Maps Series 1:50.000.",
+          url: 'data/webp/1984_modified_14.webp',
+          bounds: [[10.64493736728899,106.48794823108798],[10.883427219966512,106.75444785691136]]
+        }
+      ];
+      
+      // Create layers for each historical map
+      var mapLayers = {};
+      var currentActiveLayer = null;
+      
+      historicalMaps.forEach(function(item) {
+        // Create map pane
+        map.createPane('pane_' + item.id);
+        map.getPane('pane_' + item.id).style.zIndex = 400 + item.year/10; // Higher z-index for newer maps
+        
+        // Create image overlay layer
+        var layer = new L.imageOverlay(item.url, item.bounds, {
+          pane: 'pane_' + item.id,
+          opacity: 1.0
+        });
+        
+        // Store layer in a map for reference
+        mapLayers[item.id] = {
+          layer: layer,
+          info: item
+        };
+        
+        bounds_group.addLayer(layer);
+      });
+      
+      function activateLayer(layerId) {
+        // Remove all historical layers first
+        Object.keys(mapLayers).forEach(function(id) {
+          if (map.hasLayer(mapLayers[id].layer)) {
+            map.removeLayer(mapLayers[id].layer);
+          }
+        });
+        
+        // Add selected layer
+        var selectedMap = mapLayers[layerId];
+        if (selectedMap) {
+          map.addLayer(selectedMap.layer);
+          currentActiveLayer = selectedMap.layer;
+          
+          // Update opacity slider to reflect the current layer's opacity
+          var opacityPercent = currentActiveLayer.options.opacity * 100;
+          document.getElementById('opacity-slider').value = opacityPercent;
+          
+          // Center map on the bounds of the selected layer
+          map.fitBounds(selectedMap.info.bounds);
+          
+          // Update UI to show this is the active layer
+          document.querySelectorAll('.map-item').forEach(function(el) {
+            el.classList.remove('active');
+            if (el.dataset.id === layerId) {
+              el.classList.add('active');
+              el.style.backgroundColor = '#6E5A44';
+            } else {
+              el.style.backgroundColor = '';
+            }
+          });
+          
+          // Show info in the info box
+          showInfo(selectedMap.info);
+        }
+      }
+      
+      // Opacity slider
+      document.getElementById('opacity-slider').addEventListener('input', function() {
+        if (currentActiveLayer) {
+          var opVal = parseInt(this.value, 10) / 100;
+          currentActiveLayer.setOpacity(opVal);
+        }
+      });
+      
+      // Helper function to show info in info box
+      function showInfo(mapInfo) {
+        var infoBox = document.getElementById('info-box');
+        var infoContent = document.getElementById('info-content');
+        
+        // Format the detail text with paragraphs
+        const formattedDetail = (mapInfo.detail || '').split('\n\n').map(par => `<p>${par}</p>`).join('');
+        
+        // Set content
+        infoContent.innerHTML = `
+          <h3>${mapInfo.name} (${mapInfo.year})</h3>
+          <em>${mapInfo.author}</em>
+          ${formattedDetail}
+        `;
+        
+        // Show the box
+        infoBox.style.display = 'block';
+      }
+      
+      // Populate the sidebar with map items
+      var mapListDiv = document.getElementById('map-list');
+      
+      historicalMaps.sort(function(a, b) {
+        return a.year - b.year;  // Sort by year ascending
+      }).forEach(function(item) {
+        var mapItem = document.createElement('div');
+        mapItem.className = 'map-item';
+        mapItem.dataset.id = item.id;
+        
+        // Generate thumbnail path from the main image URL
+        const thumbFile = item.url.split('/').pop().replace('.webp', '_thumb.jpg');
+        const thumbPath = `data/thumbs/${thumbFile}`;
+        
+        mapItem.innerHTML = `
+          <div class="map-item-info">
+            <div class="map-title">${item.name} (${item.year})</div>
+            <div class="map-details">${item.author}</div>
+          </div>
+          <div class="map-thumbnail">
+            <img src="${thumbPath}" alt="${item.name} Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
+        `;
+        
+        // Add click event to select this map
+        mapItem.addEventListener('click', function() {
+          activateLayer(item.id);
+        });
+        
+        mapListDiv.appendChild(mapItem);
+      });
+      
+      // Initialize with the first map
+      activateLayer(historicalMaps[0].id);
+    </script>
+  </body>
+</html>
