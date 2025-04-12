@@ -441,7 +441,6 @@
         mapItem.dataset.id = item.id;
         
         // Generate thumbnail path from the main image URL
-        const thumbFile = item.url.split('/').pop().replace('.webp', '_thumb.jpg');
         const thumbPath = `https://raw.githubusercontent.com/lqtue/historical_maps/main/thumbs/${thumbFile}`;
         
         mapItem.innerHTML = `
