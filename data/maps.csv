@@ -1,0 +1,85 @@
+id,year,name_en,name_vi,author_en,author_vi,detail_en,detail_vi,url,bounds_sw_lat,bounds_sw_lng,bounds_ne_lat,bounds_ne_lng,thumb_url_base,tile_url_template,min_zoom,max_zoom
+layer_1799_modified_1,1799,Gia Dinh Citadel Plan,Bản đồ quy hoạch thành Gia Định,"Colonel Victor Olivier & engineer Brun, under Lord Nguyen Anh","Đại tá Victor Olivier & kỹ sư Brun, dưới chỉ đạo của chúa Nguyễn Ánh","In 1789, Lord Nguyen Anh recaptured Saigon and ordered the construction of the Gia Dinh Citadel in the Vauban style. Colonel Olivier designed the map, and engineer Brun built it in 1795. 
+
+The citadel featured a square fortress, drainage canals, and 40+ straight streets. The center housed the royal palace, flag tower, foundry, hospital, arsenal... Total area was about 65 ha – the first European urban planning foundation in Vietnam.","Năm 1789, chúa Nguyễn Ánh chiếm lại Sài Gòn và cho xây thành Gia Định theo kiểu Vauban. Đại tá Olivier thiết kế bản đồ, kỹ sư Brun dựng năm 1795. 
+
+Thành có pháo đài vuông, kênh rạch thoát nước, 40+ đường phố thẳng. Trung tâm là hoàng cung, kỳ đài, xưởng đúc, bệnh viện, kho quân dụng... Tổng diện tích khoảng 65 ha – là nền móng quy hoạch đô thị châu Âu đầu tiên tại Việt Nam.",https://raw.githubusercontent.com/lqtue/historical_maps/main/1799_modified_1.webp,10.728408907889172,106.66310974197486,10.819074776181584,106.73408348814188,1799,https://raw.githubusercontent.com/lqtue/historical_maps_hcmc/main/data/tiles/1799/{z}/{x}/{y}.webp,13,17
+layer_1815_modified_2,1815,Gia Dinh Map,Bản đồ Gia Định,Tran Van Hoc,Trần Văn Học,"Map depicting Gia Dinh Citadel and surrounding area in 1815, after the Tay Son period. One of the first local maps made by Vietnamese using Western techniques. Shows city walls, rivers, and urban structure under the Nguyen dynasty.","Bản đồ vẽ lại thành Gia Định và khu vực xung quanh năm 1815, sau thời kỳ Tây Sơn. Đây là một trong những bản đồ địa phương đầu tiên được người Việt thể hiện bằng kỹ thuật phương Tây. Bản đồ thể hiện tường thành, sông ngòi và cấu trúc đô thị thời Nguyễn.",https://raw.githubusercontent.com/lqtue/historical_maps/main/1815_modified_2.webp,10.674825002752256,106.59253020971416,10.85874723887188,106.77323334240792,1815,https://raw.githubusercontent.com/lqtue/historical_maps_hcmc/main/data/tiles/1815/{z}/{x}/{y}.webp,13,17
+layer_1862_modified_3,1862,"Urban Project for 500,000 Inhabitants in Saigon",Dự án đô thị 500.000 dân ở Sài Gòn,"Colonel Coffyn, by order of Admiral Bonnard","Đại tá công binh Coffyn, theo lệnh Đô đốc Bonnard","Map showing the plan for a city of 500,000 inhabitants, presented by Coffyn on April 30, 1862, and approved on May 10. Although not feasible at the time, this plan was the initial foundation for Saigon's urban development during the French colonial period. 
+
+Later, the street network in the 1882 map closely followed Coffyn's proposal, demonstrating the long-term influence of this plan on Saigon's urban structure.","Bản đồ thể hiện dự án quy hoạch một thành phố 500.000 dân, được Coffyn trình ngày 30/4/1862 và duyệt ngày 10/5. Dù không khả thi lúc bấy giờ, bản quy hoạch này là nền tảng đầu tiên cho phát triển đô thị Sài Gòn thời Pháp thuộc. 
+
+Về sau, mạng lưới đường phố trong bản đồ 1882 bám rất sát với đề xuất của Coffyn, cho thấy ảnh hưởng lâu dài của đồ án này đối với cấu trúc đô thị Sài Gòn.",https://raw.githubusercontent.com/lqtue/historical_maps/main/1862_modified_3.webp,10.735451895193124,106.64132477338973,10.806103680519682,106.7267817573958,1862,https://raw.githubusercontent.com/lqtue/historical_maps_hcmc/main/data/tiles/1862/{z}/{x}/{y}.webp,13,17
+layer_1882sg_modified_4,1882,Detailed Map of Saigon City,Bản đồ chi tiết TP Sài Gòn,"Boilloux, under Governor Le Myre de Vilers","Boilloux, dưới quyền Thống đốc Le Myre de Vilers","Detailed map of central Saigon in 1882, showing the detailed French-style urban planning with a grid street network.","Bản đồ chi tiết trung tâm Sài Gòn năm 1882, cho thấy quy hoạch đô thị chi tiết theo kiểu Pháp với mạng lưới đường phố vuông góc.",https://raw.githubusercontent.com/lqtue/historical_maps/main/1882sg_modified_4.webp,10.759924518019671,106.68790889761983,10.796613454125245,106.71547261893554,1882,https://raw.githubusercontent.com/lqtue/historical_maps_hcmc/main/data/tiles/1882/{z}/{x}/{y}.webp,13,17
+layer_1882_modified_5,1882,Map of the 20th Arrondissement and Surroundings,Bản đồ quận 20 và vùng phụ cận,"Boilloux, under Governor Le Myre de Vilers","Boilloux, dưới quyền Thống đốc Le Myre de Vilers","Topographic survey map of the 20th arrondissement and surrounding areas in Saigon, created in 1882 under Governor Le Myre de Vilers. 
+
+Published by the Cadastre Service of Cochinchina, under the direction of Inspector Boilloux, scale 1:20,000, reflecting details of the expanding urbanized area during the early colonial period.","Bản đồ đo đạc địa hình quận 20 và các vùng lân cận ở Sài Gòn, lập năm 1882 dưới thời Thống đốc Le Myre de Vilers. 
+
+Được xuất bản bởi Sở Địa chính Nam Kỳ, dưới sự chỉ đạo của thanh tra Boilloux, tỉ lệ 1:20.000, phản ánh chi tiết khu vực đô thị hóa mở rộng thời kỳ đầu thuộc địa.",https://raw.githubusercontent.com/lqtue/historical_maps/main/1882_modified_5.webp,10.724151801019117,106.59928568481524,10.858834953043116,106.81507032892404,1882,https://raw.githubusercontent.com/lqtue/historical_maps_hcmc/main/data/tiles/1882/{z}/{x}/{y}.webp,13,17
+layer_1895_modified_13,1895,Map of Saigon Outskirts,Bản đồ vùng ven Sài Gòn,"Lieutenant Joly, Colonial Infantry","Trung úy Joly, Bộ binh Thuộc địa","Map prepared by the Cadastre Service of Cochinchina and updated by Lieutenant Joly (French Colonial Army) in August 1895. 
+
+Scale 1:20,000, showing the peripheral area of Saigon with terrain, rivers, transportation routes – reflecting the administrative expansion and planning process during the French colonial period.","Bản đồ lập bởi Sở Địa chính Nam Kỳ và được cập nhật bởi Trung úy Joly (Lục quân thuộc địa Pháp) vào tháng 8 năm 1895. 
+
+Tỷ lệ 1:20.000, thể hiện khu vực ngoại vi Sài Gòn với địa hình, sông ngòi, tuyến giao thông – phản ánh quá trình mở rộng hành chính và quy hoạch thời Pháp thuộc.",https://raw.githubusercontent.com/lqtue/historical_maps/main/1895_modified_13.webp,10.721535684312029,106.5996526765845,10.86402479082869,106.81371849680512,1895,https://raw.githubusercontent.com/lqtue/historical_maps_hcmc/main/data/tiles/1895/{z}/{x}/{y}.webp,13,17
+layer_1898_modified_6,1898,Cadastral Map of Saigon City,Bản đồ địa chính TP Sài Gòn,"Mr. Bertaux, Director of Cadastre and Surveys","Ông Bertaux, Giám đốc Địa chính và Đo đạc","Cadastral map of Saigon published in 1898 under the direction of Mr. Bertaux – Director of the Cadastre Service and head of the Survey department. 
+
+Scale 1:4,000, showing details of the city center during the French colonial period. The map was redrawn and revised by draftsman A. Chauvet.","Bản đồ địa chính Sài Gòn xuất bản năm 1898 dưới sự chỉ đạo của ông Bertaux – Giám đốc Sở Địa chính kiêm trưởng bộ phận Đo đạc. 
+
+Tỷ lệ 1:4.000, thể hiện chi tiết khu trung tâm thành phố thời kỳ Pháp thuộc. Bản đồ được vẽ lại và chỉnh lý bởi họa viên A. Chauvet.",https://raw.githubusercontent.com/lqtue/historical_maps/main/1898_modified_6.webp,10.754960505717198,106.6759312665849,10.799322932902191,106.7242772010032,1898,https://raw.githubusercontent.com/lqtue/historical_maps_hcmc/main/data/tiles/1898/{z}/{x}/{y}.webp,13,17
+layer_1900_modified_7,1900,General Map of Saigon,Bản đồ tổng thể Sài Gòn,Cadastre and Survey Service of Cochinchina,Sở Địa chính và Đo đạc Nam Kỳ,"General map of the extended Saigon area at the beginning of the 20th century, showing urban development and connections between Saigon and surrounding regions.","Bản đồ tổng thể khu vực Sài Gòn mở rộng đầu thế kỷ 20, thể hiện sự phát triển đô thị và kết nối giữa Sài Gòn với các vùng xung quanh.",https://raw.githubusercontent.com/lqtue/historical_maps/main/1900_modified_7.webp,10.605959028926211,106.573272499584,10.910665873456349,106.8200679018665,1900,https://raw.githubusercontent.com/lqtue/historical_maps_hcmc/main/data/tiles/1900/{z}/{x}/{y}.webp,13,17
+layer_1923_modified_8,1923,Map of Saigon - Cholon,Bản đồ Sài Gòn - Chợ Lớn,Geographic Service of Indochina,Sở Địa lý Đông Dương,"Map of Saigon - Cholon from 1923, scale 1:10,000, size 136 x 118 cm, heliographic print with a gouache-colored version in the Cité de l'architecture collection.
+
+This document is currently stored at the National Library of France (BNF), the French Center for Architecture & Heritage (with annotations by architect Louis-Georges Pineau), and the CEFURDS map collection.","Bản đồ Sài Gòn - Chợ Lớn năm 1923, tỷ lệ 1:10.000, kích thước 136 x 118 cm, bản in héliographique và có bản tô màu gouache trong bộ sưu tập Cité de l'architecture.
+
+Tư liệu này hiện được lưu trữ tại Thư viện Quốc gia Pháp (BNF), Trung tâm Kiến trúc & Di sản Pháp (có bản chú thích của kiến trúc sư Louis-Georges Pineau), và bộ sưu tập bản đồ CEFURDS.",https://raw.githubusercontent.com/lqtue/historical_maps/main/1923_modified_8.webp,10.6983901876313,106.6093296630134,10.80780587479193,106.73449117638631,1923,https://raw.githubusercontent.com/lqtue/historical_maps_hcmc/main/data/tiles/1923/{z}/{x}/{y}.webp,13,17
+layer_1930_modified_9,1930,Topographic Map of Gia Dinh Province,Bản đồ địa hình tỉnh Gia Định,"Cadastre and Survey Service of Cochinchina, under French administration","Sở Địa chính và Đo đạc Nam Kỳ, dưới chính quyền Pháp","Topographic map of Gia Dinh province, published in 1930 by the Cadastre Service of Cochinchina (Service du cadastre et de la topographie), under the French colonial administration.
+
+Scale 1:100,000, size 75 x 110 cm, printed at Imprimerie d'Extrême-Orient (Hanoi). Notes in French, showing terrain and administrative boundaries of the Gia Dinh region.
+
+Source: Bibliothèque nationale de France – http://catalogue.bnf.fr/ark:/12148/cb40742501q","Bản đồ địa hình tỉnh Gia Định, xuất bản năm 1930 bởi Sở Địa chính Nam Kỳ (Service du cadastre et de la topographie), trực thuộc chính quyền thuộc địa Pháp.
+
+Tỷ lệ 1:100.000, khổ 75 x 110 cm, in tại Imprimerie d'Extrême-Orient (Hà Nội). Ghi chú bằng tiếng Pháp, thể hiện địa hình và ranh giới hành chính khu vực Gia Định.
+
+Nguồn: Bibliothèque nationale de France – http://catalogue.bnf.fr/ark:/12148/cb40742501q",https://raw.githubusercontent.com/lqtue/historical_maps/main/1930_modified_9.webp,10.26360763459378,106.32256496165392,11.220418072492633,107.0218448887627,1930,https://raw.githubusercontent.com/lqtue/historical_maps_hcmc/main/data/tiles/1930/{z}/{x}/{y}.webp,13,17
+layer_1942_modified_10,1942,Map of Saigon – Cholon,Bản đồ Sài Gòn – Chợ Lớn,Geographic Service of Indochina,Sở Địa lý Đông Dương,"Two maps, 'Plan de Saïgon' and 'Plan de Cholon', from 1942 published by the Geographic Service of Indochina in Hanoi. 
+
+Both have a scale of 1:10,000, showing details of the urban center of Saigon and the Cholon area – the two largest cities in Cochinchina at the time.
+
+Cholon Map (83 x 62 cm) – http://catalogue.bnf.fr/ark:/12148/cb406823772
+Saigon Map (62 x 86 cm) – http://catalogue.bnf.fr/ark:/12148/cb407175030","Hai bản đồ 'Plan de Saïgon' và 'Plan de Cholon' năm 1942 do Sở Địa lý Đông Dương xuất bản tại Hà Nội. 
+
+Cả hai đều có tỷ lệ 1:10.000, thể hiện chi tiết đô thị trung tâm Sài Gòn và khu vực Chợ Lớn – hai đô thị lớn nhất Nam Kỳ thời bấy giờ.
+
+Bản đồ Chợ Lớn (83 x 62 cm) – http://catalogue.bnf.fr/ark:/12148/cb406823772
+Bản đồ Sài Gòn (62 x 86 cm) – http://catalogue.bnf.fr/ark:/12148/cb407175030",https://raw.githubusercontent.com/lqtue/historical_maps/main/1942_modified_10.webp,10.7075855603191,106.61551471377386,10.798740442069482,106.72882033386672,1942,https://raw.githubusercontent.com/lqtue/historical_maps_hcmc/main/data/tiles/1942/{z}/{x}/{y}.webp,13,17
+layer_1959_modified_11,1959,Map of Saigon Capital City,Bản đồ Đô thành Sài Gòn,National Geographic Directorate (VN),Nha Địa Dư Quốc Gia,"Map of Saigon Capital City, 2nd reprint in 1959, size 105 x 73 cm, scale 1:10,000. 
+
+Published by the National Geographic Directorate, based on the original map by the French Geographic Institute photographed in 1953, adjusted using aerial photos from 1956, and updated in 1957. 
+
+Shows details of roads, buildings, public works, religious sites, cemeteries, plantations, parks, forests, marshes... Includes an inset map and legend for streets and structures. 
+
+Source: IAO map collection.","Bản đồ Đô thành Sài Gòn tái bản lần 2 năm 1959, khổ 105 x 73 cm, tỷ lệ 1:10.000. 
+
+Xuất bản bởi Nha Địa Dư Quốc Gia, dựa trên bản đồ gốc của Viện Địa Dư Pháp chụp ảnh năm 1953, điều chỉnh bằng phi ảnh năm 1956 và bổ sung năm 1957. 
+
+Thể hiện chi tiết đường sá, nhà cửa, công trình công cộng, tôn giáo, nghĩa trang, đồn điền, công viên, rừng, lau sậy… Có phụ bản và bảng chú giải các tuyến đường và công trình. 
+
+Nguồn: Bộ sưu tập bản đồ IAO.",https://raw.githubusercontent.com/lqtue/historical_maps/main/1959_modified_11.webp,10.711599668059556,106.60737572815358,10.806356645537855,106.7321502824217,1959,https://raw.githubusercontent.com/lqtue/historical_maps_hcmc/main/data/tiles/1959/{z}/{x}/{y}.webp,13,17
+layer_1968_modified_12,1968,Map of Saigon – Tan Son Nhut,Bản đồ Sài Gòn – Tân Sơn Nhất,"29th Engineer Battalion (Base Topo), under CINCUSARPAC (USA)","Tiểu đoàn công binh 29, trực thuộc CINCUSARPAC (Mỹ)","Map compiled in 1968 by the 29th Engineer Battalion (Base Topo), under the direction of CINCUSARPAC (Commander in Chief, U.S. Army, Pacific). 
+
+Derived from the 1:10,000 scale map series by the National Geographic Service of Vietnam, published in 1966, comprising 6 sheets (Sheets 1–6). 
+
+The map was photoreduced and revised from aerial photography taken in 1968.","Bản đồ được biên soạn năm 1968 bởi Tiểu đoàn Công binh số 29 (Base Topo), theo chỉ đạo của CINCUSARPAC (Bộ Tư lệnh Tác chiến Thái Bình Dương Hoa Kỳ). 
+
+Nguồn gốc từ bộ bản đồ tỷ lệ 1:10.000 của National Geographic Service of Vietnam, xuất bản năm 1966, bao gồm 6 tờ (Sheets 1–6). 
+
+Bản đồ được giảm quang học và chỉnh lý từ ảnh chụp trên không năm 1968.",https://raw.githubusercontent.com/lqtue/historical_maps/main/1968_modified_12.webp,10.695499836211551,106.61114334383667,10.847971861052343,106.73618406861462,1968,https://raw.githubusercontent.com/lqtue/historical_maps_hcmc/main/data/tiles/1968/{z}/{x}/{y}.webp,13,17
+layer_1984_modified_14,1984,Topographic Map of Ho Chi Minh City,Bản đồ địa hình TP Hồ Chí Minh,U.S. Army Map Service (Series L7014),U.S. Army Map Service (Series L7014),"1:50,000 scale topographic map from the L7014 series compiled by the U.S. Army Map Service. 
+
+This document reflects the topography of the Ho Chi Minh City urban area in the post-war period, often used for military, research, and planning purposes. 
+
+Source: Vietnam Topographic Maps Series 1:50,000.","Bản đồ địa hình tỉ lệ 1:50.000 thuộc loạt L7014 do Cơ quan Bản đồ Quân đội Hoa Kỳ (U.S. Army Map Service) biên soạn. 
+
+Tư liệu phản ánh địa hình vùng đô thị TP Hồ Chí Minh thời kỳ sau chiến tranh, thường được sử dụng cho mục đích quân sự, nghiên cứu và quy hoạch. 
+
+Nguồn: Vietnam Topographic Maps Series 1:50.000.",https://raw.githubusercontent.com/lqtue/historical_maps/main/1984_modified_14.webp,10.64493736728899,106.48794823108798,10.883427219966512,106.75444785691136,1984,https://raw.githubusercontent.com/lqtue/historical_maps_hcmc/main/data/tiles/1984/{z}/{x}/{y}.webp,13,17
