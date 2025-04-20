@@ -1015,7 +1015,12 @@
 
         if(welcomeScreen.style.display !== 'none') { // Only transition if visible
             welcomeScreen.style.opacity = '0';
-            setTimeout(() => welcomeScreen.style.display = 'none', 500);
+            setTimeout(() => {
+                welcomeScreen.style.display = 'none';
+                if (!instructionsAlreadySeen) {
+                    setTimeout(() => showInstructionPopup(), 600); // Show after welcome screen fades out
+                }
+            }, 500);
         }
         const activeItem = document.querySelector('.map-item.active'); if (activeItem) activeItem.classList.remove('active'); // Deactivate discovery item
         updateModeButton();
