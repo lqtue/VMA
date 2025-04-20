@@ -572,6 +572,12 @@
       let currentNarrativeIndex = -1; let narrativeMarker = null;
       let isSidebarOpen = false;
       let isScrollingNarrative = false; // Throttling flag for narrative scroll
+      let instructionsAlreadySeen = false;
+      try {
+        instructionsAlreadySeen = localStorage.getItem('instructionsSeen') === 'true';
+      } catch (e) {
+        console.warn("Could not read localStorage item 'instructionsSeen':", e);
+      }
       const NARRATIVE_SCROLL_THROTTLE = 750; // Throttle duration in ms
 
       // --- Translations ---
@@ -987,7 +993,12 @@
 
         if(welcomeScreen.style.display !== 'none') { // Only transition if visible
             welcomeScreen.style.opacity = '0';
-            setTimeout(() => welcomeScreen.style.display = 'none', 500);
+            setTimeout(() => {
+                welcomeScreen.style.display = 'none';
+                if (!instructionsAlreadySeen) {
+                    setTimeout(() => showInstructionPopup(), 600);
+                }
+        }, 500);
         }
         hideInfoBox(); // Hide info box (if open from narrative)
         narrativeControls.style.display = 'none'; // Explicitly hide narrative controls
@@ -1220,12 +1231,6 @@
               if (historicalMapData.length === 0) { throw new Error(translations[currentLang]?.mapLoadError || "Could not load map data."); }
 
               setLanguage(currentLang); // Set language fully *after* loading data but *before* showing popup
-
-               // --- Show instructions if not seen before ---
-               if (!instructionsAlreadySeen) {
-                   showInstructionPopup(); // Show popup with correct language
-               }
-               // ------------------------------------------
 
           } catch (error) {
               console.error("Initialization failed during data loading:", error);
