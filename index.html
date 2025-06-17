@@ -427,6 +427,60 @@
              font-size: 17px;
          }
        }
+      /* --- Bottom Time Controls --- */
+      #bottom-time-controls {
+        position: fixed;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(90, 74, 57, 0.9); /* Match sidebar */
+        color: #E9E1D4;
+        padding: 8px 15px;
+        border-radius: 8px;
+        z-index: 1070; /* Above map, potentially above other bottom controls */
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+      }
+      #bottom-time-controls label {
+        font-size: 12px;
+        color: #BFB5A6;
+        white-space: nowrap;
+      }
+      #bottom-time-slider {
+        width: 200px; /* Adjust as needed */
+        max-width: 300px;
+        height: 8px;
+        cursor: pointer;
+        accent-color: #E9E1D4;
+      }
+      #current-year-display {
+        font-weight: bold;
+        min-width: 35px; /* To prevent layout shift */
+        text-align: center;
+      }
+      #play-pause-time-btn {
+        background: #E9E1D4;
+        color: #4A3A29;
+        border: none;
+        padding: 5px 8px;
+        font-size: 12px;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: background-color 0.2s;
+        width: 30px; /* Fixed width for icon */
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #play-pause-time-btn:hover:not(:disabled) {
+        background: #BFB5A6;
+      }
+      #play-pause-time-btn:disabled {
+        background: #888; color: #ccc; cursor: default;
+      }
     </style>
     <title>Saigon - HCMC Historical Maps</title>
   </head>
@@ -549,6 +603,14 @@
     </div>
     <!-- End Instruction Popup -->
 
+    <!-- Bottom Time Slider Controls -->
+    <div id="bottom-time-controls">
+        <label for="bottom-time-slider" data-i18n-key="timeLabel">Year:</label>
+        <span id="current-year-display">1700</span>
+        <input type="range" id="bottom-time-slider" min="1700" max="2000" value="1700" step="1">
+        <button id="play-pause-time-btn" title="Play/Pause Yearly Maps"><i class="fas fa-play"></i></button>
+    </div>
+
 
     <!-- Leaflet and other JS includes -->
     <script src="js/qgis2web_expressions.js"></script>
@@ -573,6 +635,11 @@
       let isSidebarOpen = false;
       let isScrollingNarrative = false; // Throttling flag for narrative scroll
       let instructionsAlreadySeen = false;
+      let isPlayingTime = false;
+      let playTimeTimeoutId = null;
+      const TIME_PLAY_INTERVAL = 3000; // 3 seconds
+      let minYearForSlider = 1700; // Default, will be updated
+      let maxYearForSlider = 2000; // Default, will be updated
       try {
         instructionsAlreadySeen = localStorage.getItem('instructionsSeen') === 'true';
       } catch (e) {
@@ -580,12 +647,13 @@
       }
       const NARRATIVE_SCROLL_THROTTLE = 750; // Throttle duration in ms
 
+
       // --- Translations ---
       const translations = {
         en: {
             welcomeTitle: "Explore Saigon - HCMC History", welcomeDesc: "Choose your journey: follow a guided narrative through time or freely discover historical maps.", narrativeMode: "Narrative", discoveryMode: "Discovery",
             mapListTitle: "Options", modeLabel: "Mode:", switchModeBtn: "Switch Mode", languageLabel: "Language:", switchLangBtn: "Tiếng Việt", basemapLabel: "Basemap:", switchBaseBtn: "Switch Basemap",
-            zoomLabel: "Zoom:", opacityLabel: "Opacity:",
+            zoomLabel: "Zoom:", opacityLabel: "Opacity:", timeLabel: "Year:",
             infoBoxTitle: "Information", narrativeDefaultTitle: "Narrative Point", prevBtn: "< Prev", nextBtn: "Next >",
             csvError: "Error loading data.", mapLoadError: "Could not load map data.", narrativeLoadError: "Could not load narrative data.",
             // Instruction Popup Keys (Adapted for dual mode)
@@ -599,7 +667,7 @@
         vi: {
             welcomeTitle: "Khám phá Lịch sử Sài Gòn - TP.HCM", welcomeDesc: "Chọn hành trình của bạn: theo dõi câu chuyện dẫn chuyện qua thời gian hoặc tự do khám phá các bản đồ lịch sử.", narrativeMode: "Câu chuyện", discoveryMode: "Khám phá",
             mapListTitle: "Tuỳ chọn", modeLabel: "Chế độ:", switchModeBtn: "Đổi Chế độ", languageLabel: "Ngôn ngữ:", switchLangBtn: "English", basemapLabel: "Nền:", switchBaseBtn: "Đổi Bản đồ nền",
-            zoomLabel: "Phóng:", opacityLabel: "Độ mờ:",
+            zoomLabel: "Phóng:", opacityLabel: "Độ mờ:", timeLabel: "Năm:",
             infoBoxTitle: "Thông tin", narrativeDefaultTitle: "Điểm dẫn chuyện", prevBtn: "< Trước", nextBtn: "Tiếp >",
             csvError: "Lỗi tải dữ liệu.", mapLoadError: "Không thể tải dữ liệu bản đồ.", narrativeLoadError: "Không thể tải dữ liệu câu chuyện.",
             // Instruction Popup Keys (Adapted for dual mode - Vietnamese)
@@ -635,12 +703,16 @@
       const customZoomInBtn = document.getElementById('custom-zoom-in');
       const customZoomOutBtn = document.getElementById('custom-zoom-out');
       const sidebarOpacitySlider = document.getElementById('sidebar-map-opacity-slider');
+      // const sidebarTimeSlider = document.getElementById('sidebar-time-slider'); // No longer in sidebar
       // NEW: Instruction Popup Elements
       const helpToggleBtn = document.getElementById('help-toggle-btn');
       const instructionOverlay = document.getElementById('instruction-overlay');
       const instructionPopup = document.getElementById('instruction-popup');
       const closeInstructionBtn = document.getElementById('close-instruction-btn');
       const gotItInstructionBtn = document.getElementById('got-it-instruction-btn');
+      const bottomTimeSlider = document.getElementById('bottom-time-slider');
+      const currentYearDisplay = document.getElementById('current-year-display');
+      const playPauseTimeBtn = document.getElementById('play-pause-time-btn');
 
 
       // --- Core Functions ---
@@ -741,12 +813,18 @@
 
       /** Creates Leaflet layers */
       function createMapLayers() {
+        let localMinYear = Infinity;
+        let localMaxYear = -Infinity;
         historicalMapData.forEach(item => {
           const isTiled = item.url && item.url.includes('{z}') && item.url.includes('{x}') && item.url.includes('{y}');
           const paneId = `pane_${item.id}`;
           map.createPane(paneId);
           // Ensure z-index increases with year, handle potential non-numeric years gracefully
           const yearNum = parseInt(item.year, 10);
+          if (!isNaN(yearNum)) {
+              if (yearNum < localMinYear) localMinYear = yearNum;
+              if (yearNum > localMaxYear) localMaxYear = yearNum;
+          }
           const zIndex = isNaN(yearNum) ? 200 : 200 + (yearNum - 1700);
           map.getPane(paneId).style.zIndex = zIndex;
 
@@ -792,6 +870,9 @@
                layer.setOpacity(layer.options.opacity);
            }
         });
+        if (localMinYear !== Infinity) minYearForSlider = localMinYear;
+        if (localMaxYear !== -Infinity) maxYearForSlider = localMaxYear;
+
         console.log("Map layers created:", Object.keys(mapLayers).length);
       }
 
@@ -828,6 +909,18 @@
             document.querySelectorAll('.map-item').forEach(el => { el.classList.toggle('active', el.dataset.id === layerId); });
         }
 
+        // Update time slider to reflect the year of the activated layer
+        if (isPlayingTime) {
+            handlePlayPauseTime(); // Stop playback if a layer is manually activated
+        }
+        if (bottomTimeSlider && selectedMap.info.year) {
+            const yearOfLayer = parseInt(selectedMap.info.year, 10);
+            // Only update if the value is different, to prevent potential event chain
+            if (parseInt(bottomTimeSlider.value, 10) !== yearOfLayer) {
+                 bottomTimeSlider.value = yearOfLayer;
+                 if (currentYearDisplay) currentYearDisplay.textContent = yearOfLayer;
+            }
+        }
         const haveBounds = fitBounds && selectedMap.bounds && selectedMap.bounds[0] && selectedMap.bounds[1];
         const flyOptions = { padding: [30, 30], duration: 1.5, easeLinearity: 0.3, animate: true };
 
@@ -853,7 +946,7 @@
       /** Populate Sidebar Map List */
       function populateSidebar() {
         mapListDiv.innerHTML = ''; const sortedMaps = [...historicalMapData].sort((a, b) => parseInt(a.year) - parseInt(b.year));
-        sortedMaps.forEach(item => { const mapItem = document.createElement('div'); mapItem.className = 'map-item'; mapItem.dataset.id = item.id; const thumbPath = `https://raw.githubusercontent.com/lqtue/historical_maps/main/data/thumbs/${item.thumb_url_base}_thumb.jpg`; mapItem.innerHTML = `<div class="map-item-info"><div class="map-title">${item[`name_${currentLang}`]} (${item.year})</div><div class="map-details">${item[`author_${currentLang}`]}</div></div><div class="map-thumbnail"><img src="${thumbPath}" alt="${item[`name_${currentLang}`]} Thumbnail" loading="lazy"></div>`; mapItem.addEventListener('click', () => { activateLayer(item.id, true); showInfo(item); if (window.innerWidth <= 768) { toggleSidebar(false); } }); mapListDiv.appendChild(mapItem); });
+        sortedMaps.forEach(item => { const mapItem = document.createElement('div'); mapItem.className = 'map-item'; mapItem.dataset.id = item.id; const thumbPath = `https://raw.githubusercontent.com/lqtue/historical_maps/main/data/thumbs/${item.thumb_url_base}_thumb.jpg`; mapItem.innerHTML = `<div class="map-item-info"><div class="map-title">${item[`name_${currentLang}`]} (${item.year})</div><div class="map-details">${item[`author_${currentLang}`]}</div></div><div class="map-thumbnail"><img src="${thumbPath}" alt="${item[`name_${currentLang}`]} Thumbnail"></div>`; mapItem.addEventListener('click', () => { activateLayer(item.id, true); showInfo(item); if (window.innerWidth <= 768) { toggleSidebar(false); } }); mapListDiv.appendChild(mapItem); });
         // Re-apply active state if a layer is already active in discovery mode
         if(currentMode === 'discovery' && currentActiveLayer && currentActiveLayer.options.customId) {
             const activeItem = mapListDiv.querySelector(`.map-item[data-id="${currentActiveLayer.options.customId}"]`);
@@ -958,6 +1051,9 @@
          if (currentMode === 'discovery') {
              populateSidebar();
          }
+         // Update the label for the bottom time slider
+         const timeLabelElement = document.querySelector('#bottom-time-controls label[data-i18n-key="timeLabel"]');
+         if (timeLabelElement && translations[lang] && translations[lang]['timeLabel']) timeLabelElement.textContent = translations[lang]['timeLabel'];
          // Update instruction popup content IF IT'S CURRENTLY VISIBLE
          if (instructionPopup && instructionPopup.classList.contains('visible')) {
              showInstructionPopup(); // This function re-translates before showing
@@ -980,6 +1076,9 @@
       /** Start Discovery Mode */
       function startDiscoveryMode() {
         console.log("Starting Discovery Mode");
+        if (isPlayingTime) {
+            handlePlayPauseTime(); // Stop playback
+        }
         currentMode = 'discovery';
         bodyElement.className = 'discovery-mode'; // Set body class
         if (isSidebarOpen) bodyElement.classList.add('sidebar-open'); // Re-apply if sidebar was open
@@ -1012,6 +1111,9 @@
       /** Start Narrative Mode */
       function startNarrativeMode() {
         console.log("Starting Narrative Mode");
+        if (isPlayingTime) {
+            handlePlayPauseTime(); // Stop playback
+        }
         currentMode = 'narrative';
         if (narrativeData.length === 0) { alert(translations[currentLang]?.narrativeLoadError || "Could not load narrative data."); if(welcomeScreen.style.display === 'none'){ welcomeScreen.style.opacity = '1'; welcomeScreen.style.display = 'flex';} return; } // Show welcome screen again if error
         bodyElement.className = 'narrative-mode'; // Set body class
@@ -1143,19 +1245,13 @@
       // Opacity Slider Listener
       if (sidebarOpacitySlider) {
           sidebarOpacitySlider.addEventListener('input', function() {
-              if (currentActiveLayer) {
-                  const newOpacityValue = parseInt(this.value, 10) / 100;
-                  if (typeof currentActiveLayer.setOpacity === 'function') {
-                      currentActiveLayer.setOpacity(newOpacityValue);
-                  } else if (currentActiveLayer.getElement) { // Fallback for ImageOverlays
-                     const element = currentActiveLayer.getElement();
-                     if (element) element.style.opacity = newOpacityValue;
-                  }
-                  // Store the new opacity value in the layer's options
-                  if(currentActiveLayer.options) {
-                     currentActiveLayer.options.opacity = newOpacityValue;
-                  }
-              }
+              const newOpacityValue = parseInt(this.value, 10) / 100;
+              // Apply to all historical layers and store it
+              Object.values(mapLayers).forEach(mapLayerObj => {
+                  if (typeof mapLayerObj.layer.setOpacity === 'function') mapLayerObj.layer.setOpacity(newOpacityValue);
+                  else if (mapLayerObj.layer.getElement) { const el = mapLayerObj.layer.getElement(); if (el) el.style.opacity = newOpacityValue; }
+                  if (mapLayerObj.layer.options) mapLayerObj.layer.options.opacity = newOpacityValue;
+              });
           });
       } else { console.error("Sidebar opacity slider element not found!"); }
 
@@ -1209,6 +1305,157 @@
       } else { console.error("Instruction overlay (#instruction-overlay) not found!"); }
       // --- End NEW Listeners ---
 
+      // Time Slider Listener
+      if (bottomTimeSlider) {
+          bottomTimeSlider.addEventListener('input', function() {
+              const targetSliderValue = parseInt(this.value, 10); // Year user is trying to select
+
+              // Find all unique, sorted, available years from map layers
+              const uniqueAvailableYears = [...new Set(Object.values(mapLayers)
+                  .map(ml => parseInt(ml.info.year, 10))
+                  .filter(year => !isNaN(year))
+                  .sort((a, b) => a - b))];
+
+              if (uniqueAvailableYears.length === 0) {
+                  // No maps with years, clear everything and disable slider
+                  if (currentActiveLayer && map.hasLayer(currentActiveLayer)) {
+                      map.removeLayer(currentActiveLayer);
+                      if (currentMode === 'discovery' && currentActiveLayer.options && currentActiveLayer.options.customId) {
+                          const oldListItem = mapListDiv.querySelector(`.map-item.active[data-id="${currentActiveLayer.options.customId}"]`);
+                          if (oldListItem) oldListItem.classList.remove('active');
+                      }
+                      currentActiveLayer = null;
+                  }
+                  Object.values(mapLayers).forEach(ml => { if (map.hasLayer(ml.layer)) map.removeLayer(ml.layer); });
+                  updateOpacitySliderVisual(1.0);
+                  if(currentYearDisplay) currentYearDisplay.textContent = this.min; // Or some placeholder
+                  this.disabled = true;
+                  if(playPauseTimeBtn) playPauseTimeBtn.disabled = true;
+                  return;
+              } else if (this.disabled) {
+                  this.disabled = false; if(playPauseTimeBtn) playPauseTimeBtn.disabled = false; // Re-enable
+              }
+
+              // Find the year in uniqueAvailableYears closest to targetSliderValue
+              let yearToDisplay = uniqueAvailableYears[0]; // Default to first if only one, or as starting point
+              if (uniqueAvailableYears.length > 1) {
+                  yearToDisplay = uniqueAvailableYears.reduce((prev, curr) => {
+                      return (Math.abs(curr - targetSliderValue) < Math.abs(prev - targetSliderValue) ? curr : prev);
+                  });
+              }
+
+              // Update the visual year display immediately to the snapped year
+              if(currentYearDisplay) currentYearDisplay.textContent = yearToDisplay;
+
+              // Now 'yearToDisplay' is the year we actually want to show a map for.
+              let mapToShow = null;
+              for (const id in mapLayers) {
+                  if (parseInt(mapLayers[id].info.year, 10) === yearToDisplay) { // Use snapped year
+                      mapToShow = mapLayers[id];
+                      break;
+                  }
+              }
+
+              // Remove the current active layer if it's different from the one we want to show, or if none to show
+              if (currentActiveLayer && (!mapToShow || currentActiveLayer !== mapToShow.layer)) {
+                  if (map.hasLayer(currentActiveLayer)) {
+                      map.removeLayer(currentActiveLayer);
+                  }
+                  if (currentMode === 'discovery' && currentActiveLayer.options && currentActiveLayer.options.customId) {
+                      const oldListItem = mapListDiv.querySelector(`.map-item.active[data-id="${currentActiveLayer.options.customId}"]`);
+                      if (oldListItem) oldListItem.classList.remove('active');
+                  }
+                  currentActiveLayer = null;
+              }
+              
+              // Ensure all other historical layers are also removed (clean slate for the selected year)
+              Object.values(mapLayers).forEach(ml => {
+                  if ((!mapToShow || ml.layer !== mapToShow.layer) && map.hasLayer(ml.layer)) {
+                      map.removeLayer(ml.layer);
+                  }
+              });
+
+              if (mapToShow) {
+                  if (!map.hasLayer(mapToShow.layer)) {
+                      map.addLayer(mapToShow.layer);
+                  }
+                  currentActiveLayer = mapToShow.layer;
+                  const opacityForLayer = (currentActiveLayer.options?.opacity !== undefined) ? currentActiveLayer.options.opacity : 1.0;
+                  if (typeof currentActiveLayer.setOpacity === 'function') {
+                      currentActiveLayer.setOpacity(opacityForLayer);
+                  }
+                  updateOpacitySliderVisual(opacityForLayer);
+                  if (currentMode === 'discovery') {
+                      document.querySelectorAll('.map-item').forEach(el => el.classList.remove('active'));
+                      const newListItem = mapListDiv.querySelector(`.map-item[data-id="${mapToShow.info.id}"]`);
+                      if (newListItem) newListItem.classList.add('active');
+                  }
+              } else { // No layer for this year (should ideally not happen if yearToDisplay is from uniqueAvailableYears)
+                  updateOpacitySliderVisual(1.0);
+              }
+              // Visually snap the slider's thumb to the yearToDisplay
+              if (parseInt(this.value, 10) !== yearToDisplay) {
+                  this.value = yearToDisplay;
+              }
+
+              // Disable play button if slider becomes disabled (e.g. no years)
+              if (playPauseTimeBtn) playPauseTimeBtn.disabled = this.disabled;
+              if (this.disabled && isPlayingTime) {
+                  handlePlayPauseTime(); // Stop play if slider becomes disabled
+              }
+          });
+      } else { console.error("Bottom time slider element not found!"); }
+
+      // Play/Pause Time Button Listener
+      if (playPauseTimeBtn) {
+          playPauseTimeBtn.addEventListener('click', handlePlayPauseTime);
+      }
+
+      function handlePlayPauseTime() {
+          isPlayingTime = !isPlayingTime;
+          if (playPauseTimeBtn) playPauseTimeBtn.innerHTML = isPlayingTime ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+
+          if (isPlayingTime) {
+              advanceAndPlayNextYear();
+          } else {
+              if (playTimeTimeoutId) clearTimeout(playTimeTimeoutId);
+          }
+      }
+
+      function advanceAndPlayNextYear() {
+          if (!isPlayingTime) return;
+
+          const uniqueAvailableYears = [...new Set(Object.values(mapLayers)
+              .map(ml => parseInt(ml.info.year, 10))
+              .filter(year => !isNaN(year))
+              .sort((a, b) => a - b))];
+
+          if (uniqueAvailableYears.length === 0) { handlePlayPauseTime(); return; } // Stop if no years
+
+          const currentSliderYear = parseInt(bottomTimeSlider.value, 10);
+          let currentIndex = uniqueAvailableYears.indexOf(currentSliderYear);
+          const nextIndex = (currentIndex === -1 || currentIndex === uniqueAvailableYears.length - 1) ? 0 : currentIndex + 1;
+          const nextYear = uniqueAvailableYears[nextIndex];
+
+          bottomTimeSlider.value = nextYear;
+          bottomTimeSlider.dispatchEvent(new Event('input')); // Trigger map update
+          playTimeTimeoutId = setTimeout(advanceAndPlayNextYear, TIME_PLAY_INTERVAL);
+      }
+      // --- Helper to set opacity for all historical layers (called by opacity slider and init) ---
+      function setAllLayersOpacity(opacity) {
+          Object.values(mapLayers).forEach(mapLayerObj => {
+              if (typeof mapLayerObj.layer.setOpacity === 'function') {
+                  mapLayerObj.layer.setOpacity(opacity);
+              } else if (mapLayerObj.layer.getElement) { // Fallback for ImageOverlays
+                  const element = mapLayerObj.layer.getElement();
+                  if (element) element.style.opacity = opacity;
+              }
+              // Store the new opacity value in the layer's options
+              if (mapLayerObj.layer.options) {
+                  mapLayerObj.layer.options.opacity = opacity;
+              }
+          });
+      }
 
       // --- Initialization ---
       async function initializeApp() {
@@ -1256,11 +1503,47 @@
               return; // Stop
           }
 
+          // Set initial opacity for all layers (stored in their options)
+          setAllLayersOpacity(1.0);
 
           // Initial UI State - Welcome screen shown by default via CSS
           updateModeButton(); // Set initial mode text (defaults to null, so button shows default)
           updateNarrativeProgress(); // Disable narrative buttons
           updateOpacitySliderVisual(1.0); // Set slider to 100%
+
+          // Configure the time slider
+          if (bottomTimeSlider) {
+              if (minYearForSlider <= maxYearForSlider) { // Check if any valid years were found at all by createMapLayers
+                  bottomTimeSlider.min = minYearForSlider;
+                  bottomTimeSlider.max = maxYearForSlider;
+
+                  // Determine if there are any maps with actual, parseable years
+                  const anyMapsWithYears = Object.values(mapLayers).some(ml => !isNaN(parseInt(ml.info.year, 10)));
+
+                  if (anyMapsWithYears) {
+                      bottomTimeSlider.value = minYearForSlider; // Default to the earliest year in the overall range
+                      if(currentYearDisplay) currentYearDisplay.textContent = minYearForSlider;
+                      bottomTimeSlider.disabled = false;
+                      if(playPauseTimeBtn) playPauseTimeBtn.disabled = false;
+                      // Trigger initial display; the 'input' event will snap to the closest *available* map year
+                      bottomTimeSlider.dispatchEvent(new Event('input'));
+                  } else {
+                      // No maps have parseable years, or no maps at all.
+                      bottomTimeSlider.value = minYearForSlider; // Set to min of range
+                      if(currentYearDisplay) currentYearDisplay.textContent = minYearForSlider;
+                      bottomTimeSlider.disabled = true; // Disable if no actual map data for years
+                      if(playPauseTimeBtn) playPauseTimeBtn.disabled = true;
+                  }
+              } else {
+                  // This case means createMapLayers found no valid min/max years (e.g., historicalMapData was empty or no years)
+                  bottomTimeSlider.min = 1700; // Default fallback
+                  bottomTimeSlider.max = 2000; // Default fallback
+                  bottomTimeSlider.value = 1700; // Default fallback
+                  if(currentYearDisplay) currentYearDisplay.textContent = 1700;
+                  bottomTimeSlider.disabled = true;
+                  if(playPauseTimeBtn) playPauseTimeBtn.disabled = true;
+              }
+          }
 
           // Set initial map interaction state (Discovery Mode behavior by default)
           if(map) {
