@@ -126,22 +126,37 @@
         #narrative-controls button:hover:not(:disabled) { background: #BFB5A6; }
         #narrative-progress { font-size: 12px; color: #E9E1D4; text-align: center; flex-grow: 1; margin: 0 5px; }
 
-        /* --- About Popup --- */
-        #about-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.65); z-index: 1999; display: none; opacity: 0; transition: opacity 0.3s ease-in-out; }
-        #about-overlay.visible { display: block; opacity: 1; }
-        #about-popup {
+        /* --- Popups (About, Donate, etc.) --- */
+        .popup-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.65); z-index: 1999; display: none; opacity: 0; transition: opacity 0.3s ease-in-out; }
+        .popup-overlay.visible { display: block; opacity: 1; }
+        .popup-window {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -60%); width: 90%; max-width: 500px;
             background-color: #4A3A29; color: #E9E1D4; padding: 25px 30px;
             border-radius: 8px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-            z-index: 2000; display: none; text-align: left;
+            z-index: 2000; display: none;
             line-height: 1.6; opacity: 0; max-height: 80vh;
             transition: opacity 0.3s ease-in-out 0.1s, transform 0.3s ease-in-out 0.1s;
             flex-direction: column;
         }
-        #about-popup.visible { display: flex; opacity: 1; transform: translate(-50%, -50%); }
-        #about-popup h3 { margin-top: 0; margin-bottom: 15px; color: #FFFFFF; text-align: center; font-size: 1.4em; }
-        #about-popup p { margin-bottom: 12px; font-size: 0.95em; }
+        .popup-window.visible { display: flex; opacity: 1; transform: translate(-50%, -50%); }
+        .popup-window h3 { margin-top: 0; margin-bottom: 15px; color: #FFFFFF; text-align: center; font-size: 1.4em; }
+        .popup-window p { margin-bottom: 12px; font-size: 0.95em; }
+        .popup-window a { color: #FFDAB9; text-decoration: underline; }
+        .popup-window a:hover { color: #FFFFFF; }
+        #about-popup { text-align: left; }
+        /* Specific styles for donate popup content */
+        #donate-popup { text-align: center; }
+        #donate-popup img {
+            margin: 15px auto;
+            width: 208px;
+            height: 208px;
+            border-radius: 8px;
+            border: 2px solid #BFB5A6;
+        }
+        #donate-popup p:nth-of-type(2) { /* Targeting the 'Scan QR code...' paragraph */
+            margin-top: 1rem; font-size: 0.875rem; font-weight: 500; color: #BFB5A6;
+        }
 
         .popup-close-btn {
             position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 28px; line-height: 1; color: #BFB5A6; cursor: pointer; padding: 0 5px; transition: color 0.2s;
@@ -169,7 +184,7 @@
          .timeline-main {
              display: flex;
              align-items: center;
-             gap: 15px;
+             gap: 5px;
              width: 100%;
          }
          .timeline-nav-btn {
@@ -191,7 +206,7 @@
          .timeline-nav-btn:disabled { background: #6E5A44; color: #8f806d; cursor: default; }
          #timeline-card-display {
              flex-grow: 1;
-             min-height: 60px; /* Adjust base height */
+             min-height: 50px; /* Adjust base height */
              display: flex;
              justify-content: center;
              align-items: center;
@@ -206,11 +221,11 @@
              transition: max-width 0.3s ease-in-out;
              height: auto;
              width: 100%;
-             max-width: 450px; /* Give card a max-width */
+             max-width: 500px; /* Give card a max-width */
              overflow: visible;
          }
          #bottom-controls.expanded .map-card {
-             max-width: 700px; /* Wider when expanded */
+             max-width: 900px; /* Wider when expanded */
          }
          .map-card-header { display: flex; justify-content: center; text-align: center; font-weight: bold; margin-bottom: 5px; font-size: 1.1em; }
          .map-card-title { font-size: 1em; white-space: normal; overflow: visible; text-overflow: clip; }
@@ -267,7 +282,6 @@
             .top-bar-nav .nav-text { display: none; }
             .lang-full { display: none; }
             .lang-short { display: inline; }
-            .map-card { flex: 0 0 240px; } /* Smaller cards on mobile */
         }
         @media screen and (max-width: 480px) {
             .search-container input { width: 100px; }
@@ -289,14 +303,15 @@
         <div class="top-bar-nav">
             <div class="search-container">
                 <i class="fas fa-search"></i>
-                <input type="text" id="search-input" placeholder="Search for a location in HCMC...">
+                <input type="text" id="search-input" placeholder="Search for a location in HCMC..." data-i18n-placeholder-key="searchInputPlaceholder">
                 <div id="search-results-container"></div>
             </div>
             <button id="top-bar-language-btn" title="Switch Language">
                 <i class="fas fa-globe"></i>
                 <span class="lang-text"><span class="lang-full" data-i18n-key="switchLangBtn">English</span><span class="lang-short" data-i18n-key="switchLangBtnShort">EN</span></span>
             </button>
-            <button id="about-btn" title="About"><i class="fas fa-info-circle"></i> <span class="nav-text">About</span></button>
+            <button id="about-btn" title="About"><i class="fas fa-info-circle"></i> <span class="nav-text" data-i18n-key="aboutNavText">About</span></button>            
+            <button id="donate-btn" title="Donate"><i class="fas fa-heart"></i> <span class="nav-text" data-i18n-key="donateNavText">Donate</span></button>
         </div>
     </div>
 
@@ -304,19 +319,34 @@
     <div id="map"></div>
 
     <!-- Top Right Controls -->
-    <div id="opacity-control-container">
+    <div id="opacity-control-container" style="display: none;"> <!-- Initially hidden, shown when a layer is active -->
         <span id="opacity-label">Opacity: 100%</span>
         <button id="opacity-btn" title="Cycle Opacity"><i class="fas fa-adjust"></i></button>
     </div>
 
     <!-- About Popup -->
-    <div id="about-overlay"></div>
-    <div id="about-popup">
+    <div id="about-overlay" class="popup-overlay"></div>
+    <div id="about-popup" class="popup-window">
         <button id="close-about-btn" class="popup-close-btn" title="Close About">×</button>
-        <h3>About This Project</h3>
-        <p>This interactive map application allows the exploration of historical maps of Saigon - Ho Chi Minh City.</p>
-        <p>Developed by [Your Name/Organization]. Data sourced from [Your Data Sources].</p>
-        <p>This is a demonstration project and should not be used for navigational purposes.</p>
+        <h3 data-i18n-key="aboutPopupTitle">About This Project</h3>
+        <p data-i18n-key="aboutPara1">This interactive map application allows the exploration of historical maps of Saigon - Ho Chi Minh City.</p>
+        <p data-i18n-key="aboutPara2">Developed by [Your Name/Organization]. Data sourced from [Your Data Sources].</p>
+        <p data-i18n-key="aboutPara3">This is a demonstration project and should not be used for navigational purposes.</p>
+        <p data-i18n-key="aboutPara4"></p>
+    </div>
+
+    <!-- Donate Modal -->
+    <div id="donate-overlay" class="popup-overlay"></div>
+    <div id="donate-popup" class="popup-window">
+        <button id="close-donate-btn" class="popup-close-btn" title="Close Donate">×</button>
+        
+        <h3 data-i18n-key="donateModalTitle">Cảm ơn bạn đã ghé thăm!</h3>
+        <p data-i18n-key="donateModalPara1">Nếu thấy ứng dụng này hữu ích, bạn có thể ủng hộ tác giả một ly cà phê. Sự ủng hộ của bạn là nguồn động viên lớn lao!</p>
+        <img src="https://raw.githubusercontent.com/lqtue/phuongnao/refs/heads/main/qr-code.jpg" alt="Mã QR ủng hộ"
+             onerror="this.alt=translations[currentLang]?.donateModalQRNotFound || 'QR image not found'; this.src='https://placehold.co/208x208/e0e0e0/757575?text=QR+Code';"
+             data-i18n-alt-key="donateModalQRAlt">
+        <p data-i18n-key="donateModalPara2">Quét mã QR ở trên bằng ứng dụng Ngân hàng hoặc Ví điện tử.</p>
+        <p data-i18n-key="donateModalThanks">Xin chân thành cảm ơn!</p>
     </div>
 
     <!-- Bottom Controls Bar -->
@@ -360,13 +390,49 @@
             welcomeTitle: "Saigon - HCMC Historical Maps",
             switchLangBtn: "Tiếng Việt", switchLangBtnShort: "VI",
             opacityLabelText: "Opacity:",
-            csvError: "Error loading data.", mapLoadError: "Could not load map data."
+            csvError: "Error loading data.", mapLoadError: "Could not load map data.",
+            aboutNavText: "About",
+            aboutPopupTitle: "About This Project", // Existing
+            aboutPara1: 'Hi, I\'m Tuệ, the sole developer of this project. You can find me on <a href="https://www.linkedin.com/in/lqtue/" target="_blank" rel="noopener noreferrer">LinkedIn</a> or via this <a href="https://forms.gle/ZjtUZ85qr87u1BjR9" target="_blank" rel="noopener noreferrer">form</a>.', // Existing
+            aboutPara2: "This project is an open-source, interactive map for exploring Vietnam's history. It digitizes historical maps, allowing users to see historical changes.",
+            aboutPara3: "I am seeking volunteers for roles in map research, GIS/digital cartography, and front-end development.",
+            aboutPara4: 'For full project details, please visit the <a href="https://github.com/lqtue/historical_maps/blob/main/readme.md" target="_blank" rel="noopener noreferrer">GitHub repository</a>.',
+            searchInputPlaceholder: "Search for a location in HCMC...",
+            searchError: "Error during search.",
+            searchNoResults: "No results found.",
+            // Donate Modal Translations
+            donateNavText: "Donate",
+            donateModalTitle: "Thank you for visiting!",
+            donateModalPara1: "If you find this application useful, you can support the author with a cup of coffee. Your support is a great encouragement!",
+            donateModalQRAlt: "Support QR Code",
+            donateModalQRNotFound: "QR image not found",
+            donateModalPara2: "Scan the QR code above using your Banking or E-wallet app.",
+            donateModalThanks: "Sincerely thank you!"
         },
         vi: {
             welcomeTitle: "Bản đồ Lịch sử Sài Gòn - TP.HCM",
             switchLangBtn: "English", switchLangBtnShort: "EN",
             opacityLabelText: "Độ mờ:",
-            csvError: "Lỗi tải dữ liệu.", mapLoadError: "Không thể tải dữ liệu bản đồ."
+            csvError: "Lỗi tải dữ liệu.", mapLoadError: "Không thể tải dữ liệu bản đồ.",
+            // About translations are already there
+            aboutNavText: "Giới thiệu",
+            aboutPopupTitle: "Về Dự án này",
+            aboutPopupTitle: "Về Dự án này",
+            aboutPara1: 'Chào bạn, mình là Tuệ, người duy nhất phát triển dự án này. Bạn có thể tìm thấy mình trên <a href="https://www.linkedin.com/in/lqtue/" target="_blank" rel="noopener noreferrer">LinkedIn</a> hoặc qua <a href="https://forms.gle/ZjtUZ85qr87u1BjR9" target="_blank" rel="noopener noreferrer">form</a> này.',
+            aboutPara2: "Dự án này là một bản đồ tương tác, mã nguồn mở để khám phá lịch sử Việt Nam. Dự án số hóa các bản đồ lịch sử, cho phép người dùng xem các thay đổi lịch sử.",
+            aboutPara3: "Mình đang tìm kiếm tình nguyện viên cho các vai trò nghiên cứu bản đồ, GIS/bản đồ số, và phát triển front-end.",
+            aboutPara4: 'Để biết chi tiết đầy đủ về dự án, vui lòng truy cập kho lưu trữ <a href="https://github.com/lqtue/historical_maps/blob/main/readme.md" target="_blank" rel="noopener noreferrer">GitHub</a>.',
+            searchInputPlaceholder: "Tìm kiếm một địa điểm ở TP.HCM...",
+            searchError: "Lỗi trong quá trình tìm kiếm.",
+            searchNoResults: "Không tìm thấy kết quả.",
+            // Donate Modal Translations
+            donateNavText: "Ủng hộ",
+            donateModalTitle: "Cảm ơn bạn đã ghé thăm!",
+            donateModalPara1: "Nếu thấy ứng dụng này hữu ích, bạn có thể ủng hộ tác giả một ly cà phê. Sự ủng hộ của bạn là nguồn động viên lớn lao!",
+            donateModalQRAlt: "Mã QR ủng hộ",
+            donateModalQRNotFound: "Không tìm thấy ảnh QR",
+            donateModalPara2: "Quét mã QR ở trên bằng ứng dụng Ngân hàng hoặc Ví điện tử.",
+            donateModalThanks: "Xin chân thành cảm ơn!"
         }
     };
 
@@ -377,6 +443,10 @@
     const aboutOverlay = document.getElementById('about-overlay');
     const aboutPopup = document.getElementById('about-popup');
     const closeAboutBtn = document.getElementById('close-about-btn');
+    const donateBtn = document.getElementById('donate-btn'); // NEW
+    const donateOverlay = document.getElementById('donate-overlay'); // NEW
+    const donatePopup = document.getElementById('donate-popup'); // NEW
+    const closeDonateBtn = document.getElementById('close-donate-btn'); // NEW
     const searchInput = document.getElementById('search-input');
     const searchResultsContainer = document.getElementById('search-results-container');
     const bottomControls = document.getElementById('bottom-controls');
@@ -454,6 +524,11 @@
         if (typeof currentActiveLayer.setOpacity === 'function') {
             currentActiveLayer.setOpacity(globalOpacity);
         }
+        // Show the opacity control now that a layer is active
+        if (opacityControlContainer) {
+            opacityControlContainer.style.display = 'flex';
+        }
+        updateOpacityLabel();
         // Also store it on the layer's options
         currentActiveLayer.options.opacity = globalOpacity;
 
@@ -477,7 +552,18 @@
             const key = el.dataset.i18nKey;
             const translation = translations[lang]?.[key];
             if (!translation) return;
-            el.textContent = translation;
+            el.innerHTML = translation;
+        });
+        document.querySelectorAll('[data-i18n-placeholder-key]').forEach(el => {
+            const key = el.dataset.i18nPlaceholderKey;
+            const translation = translations[lang]?.[key];
+            if (translation) el.placeholder = translation;
+        });
+        // NEW: Handle alt attributes for images
+        document.querySelectorAll('[data-i18n-alt-key]').forEach(el => {
+            const key = el.dataset.i18nAltKey;
+            const translation = translations[lang]?.[key];
+            if (translation) el.alt = translation;
         });
         updateOpacityLabel();
 
@@ -497,6 +583,20 @@
         aboutPopup.classList.add('visible');
     }
 
+    // NEW: Show Donate Popup
+    function showDonatePopup() {
+        donateOverlay.classList.add('visible');
+        donatePopup.classList.add('visible');
+        // Ensure QR alt text is updated if language changes while modal is open
+        const qrImage = donatePopup.querySelector('img[data-i18n-alt-key]');
+        if (qrImage) {
+            const key = qrImage.dataset.i18nAltKey;
+            const translation = translations[currentLang]?.[key];
+            if (translation) qrImage.alt = translation;
+        }
+    }
+
+    // NEW: Hide Donate Popup
     function hideAboutPopup() {
         aboutOverlay.classList.remove('visible');
         aboutPopup.classList.remove('visible');
@@ -507,6 +607,12 @@
         const percentage = Math.round(globalOpacity * 100);
         const labelText = translations[currentLang]?.opacityLabelText || 'Opacity:';
         opacityLabel.textContent = `${labelText} ${percentage}%`;
+    }
+
+    // NEW: Hide Donate Popup
+    function hideDonatePopup() {
+        donateOverlay.classList.remove('visible');
+        donatePopup.classList.remove('visible');
     }
 
     function debounce(func, wait) {
@@ -537,7 +643,8 @@
             displayLocationSearchResults(results);
         } catch (error) {
             console.error("Nominatim search error:", error);
-            searchResultsContainer.innerHTML = `<div class="search-result-item" style="cursor:default;">Error during search.</div>`;
+            const errorText = translations[currentLang]?.searchError || "Error during search.";
+            searchResultsContainer.innerHTML = `<div class="search-result-item" style="cursor:default;">${errorText}</div>`;
             searchResultsContainer.style.display = 'block';
         }
     }
@@ -545,7 +652,8 @@
     function displayLocationSearchResults(results) {
         searchResultsContainer.innerHTML = '';
         if (results.length === 0) {
-            searchResultsContainer.innerHTML = `<div class="search-result-item" style="cursor:default;">No results found.</div>`;
+            const noResultsText = translations[currentLang]?.searchNoResults || "No results found.";
+            searchResultsContainer.innerHTML = `<div class="search-result-item" style="cursor:default;">${noResultsText}</div>`;
             searchResultsContainer.style.display = 'block';
             return;
         }
@@ -670,6 +778,11 @@
     document.addEventListener('DOMContentLoaded', initializeApp); // This should be the only DOMContentLoaded listener
     aboutBtn.addEventListener('click', showAboutPopup);
     closeAboutBtn.addEventListener('click', hideAboutPopup);
+    // NEW: Donate button listeners
+    donateBtn.addEventListener('click', showDonatePopup);
+    closeDonateBtn.addEventListener('click', hideDonatePopup);
+    donateOverlay.addEventListener('click', hideDonatePopup);
+
     aboutOverlay.addEventListener('click', hideAboutPopup);
 
     // Location Search listeners
