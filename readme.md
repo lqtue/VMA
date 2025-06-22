@@ -2,7 +2,7 @@
 
 **Live Website:** https://lqtue.github.io/historical_maps/  
 **Project Code:** https://github.com/lqtue/historical_maps  
-**Map Collection:** [View on Google Drive](https://drive.google.com)
+**Map Collection:** [View on Google Drive](https://drive.google.com/drive/folders/1wfUv560E9JLf3ALnH4AiTqbcWijTgCDw?usp=drive_link)
 
 ## What We're Building
 
