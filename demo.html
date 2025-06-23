@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Cartographic History of Saigon-Ho Chi Minh City</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals (Light Beige, Muted Terracotta, Soft Gray) -->
+    <!-- Application Structure Plan: A central dashboard design with an interactive timeline as the primary navigation. This non-linear structure allows users to explore different eras at will. Selecting a point on the timeline updates a central card with detailed, tabbed information for a specific map, preventing information overload. Below, summary charts provide a macro-level analysis of the entire collection, visualizing trends in authorship and cartographic purpose. This design was chosen to transform the linear report into a dynamic, user-driven exploratory tool, balancing deep-dives with high-level insights. -->
+    <!-- Visualization & Content Choices: 1) Report Info: Chronological map data -> Goal: Navigate time -> Viz: Interactive Timeline (HTML/JS) -> Interaction: Click to select year -> Justification: Intuitive for historical data. 2) Report Info: Detailed map descriptions -> Goal: Inform/Organize -> Viz: Tabbed Content Card (HTML/JS) -> Interaction: Click tabs -> Justification: Breaks down dense text. 3) Report Info: Map authorship/eras -> Goal: Compare proportions -> Viz: Donut Chart (Chart.js Canvas) -> Interaction: Hover tooltips -> Justification: Instant visual summary of power shifts. 4) Report Info: Cartographic Styles -> Goal: Compare frequencies -> Viz: Bar Chart (Chart.js Canvas) -> Interaction: Hover tooltips -> Justification: Shows evolution of map purpose. CONFIRMING NO SVG/Mermaid. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+                max-height: 400px;
+            }
+        }
+        .timeline-item.active {
+            background-color: #A16207;
+            color: white;
+        }
+        .tab-button.active {
+            border-bottom-color: #A16207;
+            color: #A16207;
+            font-weight: 600;
+        }
+        /* Custom scrollbar for timeline */
+        .timeline-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        .timeline-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        .timeline-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .timeline-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-slate-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-5xl font-bold text-yellow-800">A Cartographic History of Saigon</h1>
+            <p class="text-lg md:text-xl text-slate-600 mt-2">An Interactive Exploration of Ho Chi Minh City's Past (1799-1984)</p>
+        </header>
+
+        <main>
+            <section id="introduction" class="mb-10 bg-white p-6 rounded-lg shadow-sm">
+                <h2 class="text-2xl font-bold text-yellow-800 mb-3">The Urban Palimpsest of Saigon</h2>
+                <p class="text-slate-700 leading-relaxed">
+                    The history of Saigon, now Ho Chi Minh City, is written on its very landscape. Each era has inscribed its ambitions, ideologies, and conflicts, creating a layered urban story. This interactive application allows you to explore that story through a collection of historical maps. Use the timeline below to journey through the city's transformation from a dynastic fortress to a colonial capital, a Cold War flashpoint, and a modern metropolis. Each map serves as a primary document, revealing the forces that have shaped this remarkable city.
+                </p>
+            </section>
+            
+            <section id="timeline-section" class="mb-10">
+                <h2 class="text-2xl font-bold text-yellow-800 mb-4 text-center">Historical Timeline</h2>
+                <div id="timeline-container" class="timeline-container bg-white p-4 rounded-lg shadow-sm overflow-x-auto whitespace-nowrap">
+                    <!-- Timeline will be generated by JS -->
+                </div>
+            </section>
+
+            <section id="map-display" class="bg-white p-6 rounded-lg shadow-md mb-10 min-h-[500px]">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div id="map-details-container">
+                        <h3 id="map-title-en" class="text-2xl font-bold text-yellow-800"></h3>
+                        <p id="map-title-vi" class="text-lg text-slate-500 mb-4"></p>
+                        
+                        <div class="text-sm text-slate-600 space-y-2 mb-4">
+                            <p><strong>Year:</strong> <span id="map-year"></span></p>
+                            <p><strong>Author:</strong> <span id="map-author"></span></p>
+                            <p><strong>Publisher:</strong> <span id="map-publisher"></span></p>
+                            <p><strong>Scale:</strong> <span id="map-scale"></span></p>
+                        </div>
+                    </div>
+                    <div>
+                        <div id="map-image-container" class="bg-stone-100 rounded-md flex items-center justify-center h-80">
+                            <img id="map-image" src="" alt="Historical Map Placeholder" class="max-w-full max-h-full object-contain rounded-md">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 border-t border-slate-200 pt-4">
+                    <div id="tabs" class="flex border-b border-slate-200 mb-4">
+                        <button class="tab-button py-2 px-4 text-slate-500 border-b-2 border-transparent transition" data-tab="context">Historical Context</button>
+                        <button class="tab-button py-2 px-4 text-slate-500 border-b-2 border-transparent transition" data-tab="details">Cartographic Details</button>
+                        <button class="tab-button py-2 px-4 text-slate-500 border-b-2 border-transparent transition" data-tab="significance">Significance</button>
+                    </div>
+                    <div id="tab-content" class="text-slate-700 leading-relaxed min-h-[150px]">
+                        <!-- Tab content will be populated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <section id="analysis-dashboard" class="pt-8">
+                 <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-yellow-800">Collection at a Glance</h2>
+                    <p class="text-slate-600 mt-2">These visualizations summarize the entire map collection, revealing trends in who made the maps and for what purpose across different historical eras.</p>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-bold text-center text-yellow-800 mb-4">Maps by Ruling Power & Era</h3>
+                        <div class="chart-container">
+                            <canvas id="era-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-bold text-center text-yellow-800 mb-4">Evolution of Cartographic Style</h3>
+                        <div class="chart-container">
+                            <canvas id="style-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="text-center mt-12 py-6 border-t border-slate-200">
+            <p class="text-slate-500">An interactive data visualization based on the report "A Cartographic History of Saigon-Ho Chi Minh City."</p>
+        </footer>
+    </div>
+
+<script>
+const mapData = [
+    {
+        id: 'layer_1799_modified_1',
+        year: 1799,
+        era: 'Nguyễn Dynasty',
+        name_en: 'Plan of the City of Saigon, Fortified in 1790',
+        name_vi: 'Bản đồ quy hoạch thành Gia Định',
+        author_en: 'Design: Théodore Le Brun (Engineer); Construction Supervisor: Col. Victor Olivier de Puymanel; Map Drawer (1795): M. Brun (Engineer)',
+        publisher_en: 'Service of the King of Cochinchina',
+        scale: 'Not specified',
+        map_type: 'Vauban Military Plan',
+        historical_context: "This map was created to document the newly completed Gia Dinh Citadel, which served as Nguyễn Ánh's temporary royal capital (Gia Định Kinh) during his war against the Tây Sơn rebels. It was a powerful statement of his authority and a critical defensive asset that effectively deterred further Tây Sơn attacks by river.",
+        cartographic_details: "The map presents a classic Vauban-style military plan. It shows a large, square-shaped fortress with four primary corner bastions and six smaller outer half-towers. The citadel, constructed from Biên Hòa granite, featured 5-meter-high walls surrounded by a deep moat. Inside its 65-hectare area, a grid of over 40 straight streets was laid out, a radical departure from traditional Vietnamese urban patterns. The map details the locations of key structures within the walls, including the King's Palace at the center, an arsenal, a foundry, barracks, and a hospital, making it a self-sufficient military and administrative city.",
+        significance: "This map documents the first instance of European urban planning in Vietnam and stands as a primary testament to the successful military and technical collaboration between Nguyễn Ánh and his French advisors. It is a record of the modernization of the Nguyễn military, a key factor in its ultimate victory."
+    },
+    {
+        id: 'layer_1815_modified_2',
+        year: 1815,
+        era: 'Nguyễn Dynasty',
+        name_en: 'Map of Gia Dinh',
+        name_vi: 'Bản đồ Gia Định',
+        author_en: 'Tran Van Hoc, Chief Supervisor of the Citadel',
+        publisher_en: 'Nguyễn Dynasty Imperial Court',
+        scale: 'Not specified',
+        map_type: 'Vietnamese-Western Hybrid',
+        historical_context: "This map was created thirteen years after Nguyễn Ánh had unified Vietnam, proclaimed himself Emperor Gia Long, and moved the national capital to Huế in 1802. Gia Dinh, no longer the royal capital, was officially downgraded to a provincial capital but remained the most important administrative and military center for the entire southern region. The map was drawn by Tran Van Hoc and presented to Emperor Gia Long, reflecting the need for accurate administrative records of this vital territory.",
+        cartographic_details: "The map depicts the Gia Dinh Citadel and its extensive surrounding area, showing the network of rivers, canals, and urban settlements that defined the region. While produced by a Vietnamese official, its style is noted for using Western cartographic techniques, a clear indication of knowledge transfer from the French advisors who had served Gia Long. The map shows the city walls, rivers, and the nascent urban structure of both Saigon and the nearby 'Saigon Market' (in what would become Cholon).",
+        significance: "This map marks a pivotal moment in the history of Vietnamese cartography. The transition from the 1799 map, created by foreign experts, to this 1815 map, created by a local official, demonstrates the successful indigenization of Western mapping techniques. It is not merely a copy but a Vietnamese re-interpretation of their own space using a newly acquired cartographic language. Tran Van Hoc's work represents the birth of a hybrid, modern Vietnamese cartographic tradition."
+    },
+    {
+        id: 'layer_1862_modified_3',
+        year: 1862,
+        era: 'French Colonial',
+        name_en: 'Urban Project for 500,000 Inhabitants in Saigon',
+        name_vi: 'Dự án đô thị 500.000 dân ở Sài Gòn',
+        author_en: 'Lt. Col. Paul Coffyn, Corps of Engineers',
+        publisher_en: 'French Expeditionary Corps of Cochinchina',
+        scale: 'Not specified',
+        map_type: 'French Colonial Master Plan',
+        historical_context: "Created immediately following the French consolidation of power in Cochinchina, this was the foundational master plan for a new colonial capital, intended to replace the razed Vietnamese city with a modern European metropolis.",
+        cartographic_details: "This is a grand, geometric master plan for a territory of approximately 25 square kilometers, designed to accommodate a future population of 500,000. It features a rational grid of streets intersecting at right angles, with major thoroughfares planned to be 40 meters wide. Key elements include a proposed 'canal de Ceinture' (belt canal) linking the Arroyo Chinois (Bến Nghé Creek) and the Arroyo de l’Avalanche (Thị Nghè Creek), which would have turned the city into a defensible island, and distinct zones for administration, commerce, and industry.",
+        significance: "Although its vision was considered infeasible and was never fully implemented due to financial constraints, the Coffyn Plan is arguably the single most important map in Saigon's urban history. It established the fundamental spatial logic and street network that would guide the city's development for the next 80 years. The grid pattern seen in all subsequent colonial maps is a direct legacy of Coffyn's proposal."
+    },
+    {
+        id: 'layer_1882_modified_5',
+        year: 1882,
+        era: 'French Colonial',
+        name_en: 'Map of the 20th Arrondissement and Surroundings',
+        name_vi: 'Bản đồ quận 20 và vùng phụ cận',
+        author_en: 'M. Boilloux, Inspector',
+        publisher_en: 'Cadastre Service of Cochinchina',
+        scale: '1:20,000',
+        map_type: 'French Topographic Survey',
+        historical_context: "This map was produced during the tenure of Charles Le Myre de Vilers (1879-1882), the first civilian governor of Cochinchina. His appointment marked a shift from direct military rule to a more structured civil administration, with an emphasis on systematic surveying for land management, infrastructure development, and taxation.",
+        cartographic_details: "A smaller-scale topographic survey (1:20,000) covering the expanding periphery of the city. It reflects the colonial administration's need to map and control the hinterland for security and resource management.",
+        significance: "This map is an artifact of a maturing colonial state, moving beyond aspirational planning to the practical, bureaucratic work of territorial administration. It shows how the city was expanding beyond its initial core."
+    },
+    {
+        id: 'layer_1898_modified_6',
+        year: 1898,
+        era: 'French Colonial',
+        name_en: 'Cadastral Map of Saigon City',
+        name_vi: 'Bản đồ địa chính TP Sài Gòn',
+        author_en: 'Director: Mr. Bertaux; Draftsman: A. Chauvet',
+        publisher_en: 'Cadastre and Survey Service of Cochinchina',
+        scale: '1:4,000',
+        map_type: 'French Cadastral',
+        historical_context: "By the end of the 19th century, Saigon was a thriving colonial port and the undisputed economic and administrative center of French Indochina, often called the 'Pearl of the Far East'. This map represents the culmination of 19th-century colonial urbanism and bureaucratic organization.",
+        cartographic_details: "A highly detailed cadastral map at a large scale of 1:4,000, published in four sheets. It shows the city center with precision, delineating individual property plots, buildings, and streets. The map was published in Paris by H. Barrère.",
+        significance: "This is a prime example of cadastral mapping, a core technology of colonial governance. By defining and recording land ownership, such maps were essential for taxation, property transactions, and the legal framework of colonial economic control. It is a document of a fully established and meticulously administered colonial city."
+    },
+    {
+        id: 'layer_1923_modified_8',
+        year: 1923,
+        era: 'French Colonial',
+        name_en: 'Map of Saigon - Cholon',
+        name_vi: 'Bản đồ Sài Gòn - Chợ Lớn',
+        author_en: 'Geographic Service of Indochina',
+        publisher_en: 'Geographic Service of Indochina',
+        scale: '1:10,000',
+        map_type: 'Heliographic Print',
+        historical_context: "By the 1920s, the once-separate cities of Saigon and Cholon had grown to the point where they were functionally a single conurbation, though their official administrative merger would not occur until 1931. This map visually represents the two distinct but increasingly interconnected urban centers.",
+        cartographic_details: "A large, detailed map at a scale of 1:10,000, measuring 136 x 118 cm. The map was produced as a heliographic print, a photomechanical process used for reproducing large-format technical drawings before the advent of modern methods. It is a valuable document stored in several prestigious French archives.",
+        significance: "This map documents the twin cities on the cusp of their administrative fusion. It captures the distinct characters of French-planned Saigon and the more organic, Chinese-influenced Cholon. The use of heliography highlights the specific reproduction technologies available for large-scale cartographic works at the time."
+    },
+    {
+        id: 'layer_1942_modified_10',
+        year: 1942,
+        era: 'French Colonial',
+        name_en: 'Map of Saigon – Cholon',
+        name_vi: 'Bản đồ Sài Gòn – Chợ Lớn',
+        author_en: 'Geographic Service of Indochina',
+        publisher_en: 'Geographic Service of Indochina',
+        scale: '1:10,000',
+        map_type: 'City Plan',
+        historical_context: "This map was created during a period of immense political turmoil. France had fallen in 1940, and French Indochina was administered by the Vichy government while being under Japanese military occupation. Despite this, the colonial administrative machinery, including the highly skilled Geographic Service, continued to function.",
+        cartographic_details: "This is a set of two separate but complementary maps: 'Plan de Saïgon' (62 x 86 cm) and 'Plan de Cholon' (83 x 62 cm). Both are produced at a detailed 1:10,000 scale and were published in Hanoi.",
+        significance: "This pair of maps provides a detailed snapshot of the city's urban fabric just before the major upheavals of the Japanese coup in March 1945 and the subsequent First Indochina War. The production of such high-quality maps during wartime underscores their continued importance for civil administration and military planning."
+    },
+    {
+        id: 'layer_1959_modified_11',
+        year: 1959,
+        era: 'Republic of Vietnam / US',
+        name_en: 'Map of Saigon Capital City',
+        name_vi: 'Bản đồ Đô thành Sài Gòn',
+        author_en: 'National Geographic Directorate (Republic of Vietnam)',
+        publisher_en: 'National Geographic Directorate (Republic of Vietnam)',
+        scale: '1:10,000',
+        map_type: 'City Plan',
+        historical_context: "This map portrays Saigon as the capital of the First Republic of Vietnam under President Ngô Đình Diệm. It was created during a period of relative stability and American-backed nation-building, just as the armed conflict with communist guerrillas was beginning to escalate.",
+        cartographic_details: "A highly detailed map at a scale of 1:10,000. Its lineage is explicitly stated: it is based on an original map by the French Geographic Institute from 1953, adjusted using American-supplied aerial photos from 1956, and updated in 1957. It is exceptionally comprehensive, showing individual buildings, public works, religious sites, cemeteries, and even vegetation types.",
+        significance: "This map is a key document of Saigon before the height of the Vietnam War. It represents the cartographic efforts of the independent South Vietnamese state to define its capital, while also clearly demonstrating its reliance on both inherited French colonial data and new American military technology (aerial photography)."
+    },
+    {
+        id: 'layer_1968_modified_12',
+        year: 1968,
+        era: 'Republic of Vietnam / US',
+        name_en: 'Map of Saigon – Tan Son Nhut',
+        name_vi: 'Bản đồ Sài Gòn – Tân Sơn Nhất',
+        author_en: '29th Engineer Battalion (Base Topo), U.S. Army',
+        publisher_en: 'CINCUSARPAC (U.S. Army, Pacific)',
+        scale: '1:10,000 (derived from)',
+        map_type: 'U.S. Military Topographic',
+        historical_context: "This map was compiled in 1968, a pivotal year in the Vietnam War. Its creation is directly linked to the aftermath of the Tet Offensive (January-February 1968), a massive communist assault during which fighting reached the very streets of Saigon and the perimeter of the vital Tan Son Nhut Air Base.",
+        cartographic_details: "The map was derived from a 1966 map series produced by the South Vietnamese National Geographic Service. Critically, it was 'photoreduced and revised from aerial photography taken in 1968'. This indicates an urgent operational need for the most up-to-date intelligence on the city's layout following the attacks.",
+        significance: "A direct artifact of the war's urban dimension. It is not a general city plan but a military-intelligence document created in response to a specific, critical event. It demonstrates the weaponization of cartography for urban warfare, where accurate spatial information was essential for defense and counter-attack."
+    },
+    {
+        id: 'layer_1984_modified_14',
+        year: 1984,
+        era: 'Post-War',
+        name_en: 'Topographic Map of Ho Chi Minh City',
+        name_vi: 'Bản đồ địa hình TP Hồ Chí Minh',
+        author_en: 'U.S. Army Map Service',
+        publisher_en: 'U.S. Army Map Service',
+        scale: '1:50,000',
+        map_type: 'U.S. Military Topographic',
+        historical_context: "This map was produced nine years after the Fall of Saigon in 1975 and the reunification of Vietnam under communist rule. It dates to the country's difficult post-war 'subsidy period' (thời bao cấp), an era of economic hardship and international isolation that preceded the transformative Đổi Mới reforms of 1986.",
+        cartographic_details: "A standard military topographic map at a scale of 1:50,000, belonging to the extensive L7014 series that the U.S. Army had produced throughout the war.",
+        significance: "Represents the long 'afterlife' of military cartographic data. Its creation by a U.S. agency post-war indicates its value for ongoing strategic and geopolitical analysis, providing a topographic baseline of the city before the Đổi Mới economic boom."
+    }
+];
+
+document.addEventListener('DOMContentLoaded', () => {
+    const timelineContainer = document.getElementById('timeline-container');
+    const tabContainer = document.getElementById('tabs');
+    const tabContent = document.getElementById('tab-content');
+
+    let activeMapId = mapData[0].id;
+    let activeTab = 'context';
+    let charts = {};
+
+    function displayMap(mapId) {
+        const map = mapData.find(m => m.id === mapId);
+        if (!map) return;
+        
+        activeMapId = mapId;
+
+        document.getElementById('map-title-en').textContent = map.name_en;
+        document.getElementById('map-title-vi').textContent = map.name_vi;
+        document.getElementById('map-year').textContent = map.year;
+        document.getElementById('map-author').textContent = map.author_en;
+        document.getElementById('map-publisher').textContent = map.publisher_en;
+        document.getElementById('map-scale').textContent = map.scale;
+        
+        const mapImage = document.getElementById('map-image');
+        const placeholderText = `${map.name_en.replace(/\s/g, '+')}`;
+        mapImage.src = `https://placehold.co/600x400/e7e5e4/a16207?text=${placeholderText}`;
+        mapImage.alt = `Placeholder for: ${map.name_en}`;
+
+        updateTimelineUI();
+        updateTabContent();
+    }
+    
+    function updateTimelineUI() {
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        timelineItems.forEach(item => {
+            if (item.dataset.id === activeMapId) {
+                item.classList.add('active');
+                item.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
+
+    function updateTabContent() {
+        const map = mapData.find(m => m.id === activeMapId);
+        if (!map) return;
+
+        let content = '';
+        switch(activeTab) {
+            case 'context':
+                content = map.historical_context;
+                break;
+            case 'details':
+                content = map.cartographic_details;
+                break;
+            case 'significance':
+                content = map.significance;
+                break;
+        }
+        tabContent.innerHTML = `<p>${content}</p>`;
+        
+        const tabButtons = document.querySelectorAll('.tab-button');
+        tabButtons.forEach(button => {
+            if(button.dataset.tab === activeTab) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+        });
+    }
+
+    function createTimeline() {
+        mapData.forEach(map => {
+            const item = document.createElement('button');
+            item.className = 'timeline-item inline-block text-center p-3 m-1 rounded-md cursor-pointer transition bg-slate-100 hover:bg-yellow-800 hover:text-white';
+            item.dataset.id = map.id;
+            item.innerHTML = `<span class="font-bold">${map.year}</span>`;
+            item.addEventListener('click', () => displayMap(map.id));
+            timelineContainer.appendChild(item);
+        });
+    }
+
+    function createCharts() {
+        // Era Chart (Donut)
+        const eraCtx = document.getElementById('era-chart').getContext('2d');
+        const eraCounts = mapData.reduce((acc, map) => {
+            acc[map.era] = (acc[map.era] || 0) + 1;
+            return acc;
+        }, {});
+
+        charts.eraChart = new Chart(eraCtx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(eraCounts),
+                datasets: [{
+                    label: 'Maps by Era',
+                    data: Object.values(eraCounts),
+                    backgroundColor: ['#F59E0B', '#64748B', '#DC2626', '#10B981'],
+                    borderColor: '#f8fafc',
+                    borderWidth: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += context.parsed + ' map(s)';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Style Chart (Bar)
+        const styleCtx = document.getElementById('style-chart').getContext('2d');
+        const styleCounts = mapData.reduce((acc, map) => {
+            acc[map.map_type] = (acc[map.map_type] || 0) + 1;
+            return acc;
+        }, {});
+
+        charts.styleChart = new Chart(styleCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(styleCounts),
+                datasets: [{
+                    label: 'Number of Maps',
+                    data: Object.values(styleCounts),
+                    backgroundColor: '#F59E0B',
+                    borderColor: '#A16207',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false,
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                           stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    tabContainer.addEventListener('click', (e) => {
+        if(e.target.classList.contains('tab-button')) {
+            activeTab = e.target.dataset.tab;
+            updateTabContent();
+        }
+    });
+
+    createTimeline();
+    createCharts();
+    displayMap(mapData[0].id);
+});
+</script>
+
+</body>
+</html>
