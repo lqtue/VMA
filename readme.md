@@ -1,4 +1,4 @@
-# The Vietnam Digital History Map
+# The Vietnam Map Archive Project
 
 **Live Website:** https://lqtue.github.io/VMA  
 **Project Code:** https://github.com/lqtue/VMA  
