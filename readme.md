@@ -1,7 +1,7 @@
 # The Vietnam Digital History Map
 
 **Live Website:** https://lqtue.github.io/VMA  
-**Project Code:** https://github.com/lqtue/VMA
+**Project Code:** https://github.com/lqtue/VMA  
 **Map Collection:** [View on Google Drive](https://drive.google.com/drive/folders/1wfUv560E9JLf3ALnH4AiTqbcWijTgCDw?usp=drive_link)
 
 ## What We're Building
