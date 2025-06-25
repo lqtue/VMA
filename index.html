@@ -297,7 +297,7 @@
     <!-- Top Bar -->
     <div id="top-bar">
         <div class="logo-title">
-             <img src="https://raw.githubusercontent.com/lqtue/historical_maps/refs/heads/main/data/logo.png" alt="Logo" onerror="this.onerror=null;this.src='https://placehold.co/100x100/4A3A29/E9E1D4?text=LOGO';">
+             <img src="https://raw.githubusercontent.com/lqtue/VMA/refs/heads/main/data/logo.png" alt="Logo" onerror="this.onerror=null;this.src='https://placehold.co/100x100/4A3A29/E9E1D4?text=LOGO';">
             <h1 data-i18n-key="welcomeTitle">Vietnam Map Archive Project</h1>
         </div>
         <div class="top-bar-nav">
@@ -396,7 +396,7 @@
             aboutPara1: 'Hi, I\'m Tuệ, founder of the group running this project. You can find me on <a href="https://www.linkedin.com/in/lqtue/" target="_blank" rel="noopener noreferrer">LinkedIn</a> or via this <a href="https://forms.gle/ZjtUZ85qr87u1BjR9" target="_blank" rel="noopener noreferrer">form</a>.', // Existing
             aboutPara2: "This project is an open-source, interactive map for exploring Vietnam's history. It digitizes historical maps, allowing users to see historical changes.",
             aboutPara3: "I am seeking volunteers for roles in map research, GIS/digital cartography, and front-end development.",
-            aboutPara4: 'For full project details, please visit the <a href="https://github.com/lqtue/historical_maps/blob/main/readme.md" target="_blank" rel="noopener noreferrer">GitHub repository</a>.',
+            aboutPara4: 'For full project details, please visit the <a href="https://github.com/lqtue/VMA/blob/main/readme.md" target="_blank" rel="noopener noreferrer">GitHub repository</a>.',
             searchInputPlaceholder: "Search for a location in HCMC...",
             searchError: "Error during search.",
             searchNoResults: "No results found.",
@@ -421,7 +421,7 @@
             aboutPara1: 'Chào bạn, mình là Tuệ, người đại diện nhóm phát triển dự án này. Bạn có thể tìm thấy mình trên <a href="https://www.linkedin.com/in/lqtue/" target="_blank" rel="noopener noreferrer">LinkedIn</a> hoặc qua <a href="https://forms.gle/ZjtUZ85qr87u1BjR9" target="_blank" rel="noopener noreferrer">form</a> này.',
             aboutPara2: "Dự án này là một bản đồ tương tác, mã nguồn mở để khám phá lịch sử Việt Nam. Dự án số hóa các bản đồ lịch sử, cho phép người dùng xem các thay đổi lịch sử.",
             aboutPara3: "Mình đang tìm kiếm tình nguyện viên cho các vai trò nghiên cứu bản đồ, GIS/bản đồ số, và phát triển front-end.",
-            aboutPara4: 'Để biết chi tiết đầy đủ về dự án, vui lòng truy cập kho lưu trữ <a href="https://github.com/lqtue/historical_maps/blob/main/readme.md" target="_blank" rel="noopener noreferrer">GitHub</a>.',
+            aboutPara4: 'Để biết chi tiết đầy đủ về dự án, vui lòng truy cập kho lưu trữ <a href="https://github.com/lqtue/VMA/blob/main/readme.md" target="_blank" rel="noopener noreferrer">GitHub</a>.',
             searchInputPlaceholder: "Tìm kiếm một địa điểm ở TP.HCM...",
             searchError: "Lỗi trong quá trình tìm kiếm.",
             searchNoResults: "Không tìm thấy kết quả.",
@@ -760,7 +760,7 @@
         if (preferredLang && translations[preferredLang]) currentLang = preferredLang;
         try {
             [historicalMapData] = await Promise.all([
-                loadCSV('https://raw.githubusercontent.com/lqtue/historical_maps/main/data/maps.csv')
+                loadCSV('https://raw.githubusercontent.com/lqtue/VMA/main/data/maps.csv')
             ]);
             sortedMaps = historicalMapData.filter(m => m.year && !isNaN(parseInt(m.year, 10))).sort((a, b) => parseInt(a.year) - parseInt(b.year));
             initializeMap();
